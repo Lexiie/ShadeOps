@@ -1,0 +1,101 @@
+<svg width="1400" height="620" viewBox="0 0 1400 620" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">ShadeOps private payout workflow</title>
+  <desc id="desc">A workflow showing intent, agent draft, workspace data, treasury context, policy, route selection, admin signing, privacy execution, and proof verification.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1400" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07110F"/>
+      <stop offset="1" stop-color="#151918"/>
+    </linearGradient>
+    <linearGradient id="line" x1="120" y1="0" x2="1280" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#62F0B2"/>
+      <stop offset="0.5" stop-color="#F8C35B"/>
+      <stop offset="1" stop-color="#7DD3FC"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="1400" height="620" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="1400" height="620" rx="0" fill="url(#bg)"/>
+  <text x="92" y="82" fill="#E9F4EE" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800">Agent assists. Policy decides. Admin signs. Privacy executes. Proof records.</text>
+  <text x="92" y="120" fill="#96A39D" font-family="Inter, Arial, sans-serif" font-size="18">A review-first payout pipeline for Solana teams using Umbra, Cloak, Zerion, Supabase API, and verified proof records.</text>
+
+  <path d="M158 292 H1242" stroke="url(#line)" stroke-width="5" stroke-linecap="round"/>
+
+  <g filter="url(#shadow)" font-family="Inter, Arial, sans-serif">
+    <g transform="translate(72 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#13201D" stroke="#62F0B2"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Intent</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Natural language</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">payout request</text>
+    </g>
+    <g transform="translate(214 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#13201D" stroke="#62F0B2"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Agent draft</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Parse, ask,</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">summarize risk</text>
+    </g>
+    <g transform="translate(356 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#1D1A11" stroke="#F8C35B"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Workspace</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Contacts and</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">treasury config</text>
+    </g>
+    <g transform="translate(498 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#1D1A11" stroke="#F8C35B"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Treasury</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Zerion context</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">and RPC balance</text>
+    </g>
+    <g transform="translate(640 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#13201D" stroke="#62F0B2"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Policy</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Pass, review,</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">or blocked</text>
+    </g>
+    <g transform="translate(782 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#111B22" stroke="#7DD3FC"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Route</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Umbra or</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">Cloak</text>
+    </g>
+    <g transform="translate(924 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#2A1620" stroke="#F472B6"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Admin signs</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Wallet approval</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">client-side</text>
+    </g>
+    <g transform="translate(1066 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#111B22" stroke="#7DD3FC"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Execute</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">Privacy protocol</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">transaction</text>
+    </g>
+    <g transform="translate(1208 190)">
+      <rect width="166" height="156" rx="18" fill="#0B1111" stroke="#2D3A36"/>
+      <circle cx="83" cy="44" r="18" fill="#13201D" stroke="#62F0B2"/>
+      <text x="28" y="88" fill="#E9F4EE" font-size="18" font-weight="700">Proof</text>
+      <text x="28" y="116" fill="#96A39D" font-size="13">RPC verified</text>
+      <text x="28" y="136" fill="#96A39D" font-size="13">audit record</text>
+    </g>
+  </g>
+
+  <g font-family="JetBrains Mono, monospace" font-size="14">
+    <rect x="150" y="430" width="320" height="68" rx="14" fill="#0B1111" stroke="#2D3A36"/>
+    <text x="176" y="458" fill="#62F0B2">No autonomous spending</text>
+    <text x="176" y="482" fill="#96A39D">agent output never signs or approves</text>
+    <rect x="540" y="430" width="320" height="68" rx="14" fill="#0B1111" stroke="#2D3A36"/>
+    <text x="566" y="458" fill="#F8C35B">Supabase API</text>
+    <text x="566" y="482" fill="#96A39D">server-side workspace records</text>
+    <rect x="930" y="430" width="320" height="68" rx="14" fill="#0B1111" stroke="#2D3A36"/>
+    <text x="956" y="458" fill="#7DD3FC">Verified references</text>
+    <text x="956" y="482" fill="#96A39D">confirmed, signer-bound, decoded hints</text>
+  </g>
+</svg>

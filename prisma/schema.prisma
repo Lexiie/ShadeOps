@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members        WorkspaceMember[]
+  contacts       Contact[]
+  treasuryConfig TreasuryConfig?
+}
+
+model WorkspaceMember {
+  id            String   @id @default(cuid())
+  workspaceId   String
+  walletAddress String
+  role          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, walletAddress])
+  @@index([walletAddress])
+}
+
+model PayoutOperation {
+  id              String   @id @default(cuid())
+  workspaceId     String   @default("default")
+  operationId     String   @unique
+  treasuryWallet  String
+  parsedOperation Json
+  policyResult    Json
+  routeDecision   Json
+  recipientSource String?
+  adminWallet     String?
+  createdAt       DateTime @default(now())
+}
+
+model ProofRecord {
+  id                 String   @id @default(cuid())
+  workspaceId        String   @default("default")
+  operationId        String   @unique
+  proofPackage       Json
+  decisionHash       String
+  adminWallet        String?
+  adminApprovedAt    DateTime
+  createdAt          DateTime @default(now())
+}
+
+model Contact {
+  id            String   @id @default(cuid())
+  workspaceId   String   @default("default")
+  label         String
+  walletAddress String
+  role          String
+  allowedTokens Json
+  status        String
+  source        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, label])
+  @@index([workspaceId, walletAddress])
+}
+
+model TreasuryConfig {
+  id            String   @id @default(cuid())
+  workspaceId   String   @unique @default("default")
+  label         String
+  walletAddress String
+  network       String
+  source        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model WalletSessionAudit {
+  id            String   @id @default(cuid())
+  walletAddress String
+  event         String
+  createdAt     DateTime @default(now())
+}

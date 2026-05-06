@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.*
+.npmrc
+
+# Next.js / React build output
+.next/
+out/
+build/
+dist/
+
+# TypeScript / tooling caches
+*.tsbuildinfo
+.turbo/
+.cache/
+.eslintcache
+.parcel-cache/
+coverage/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local editor / OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local agent/session artifacts
+.code/
+.superstack/
+codex-session.jsonl
+
+# Local databases and runtime state
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated or temporary archives
+*.tgz
+*.tar
+*.tar.gz
+*.zip
+
+# Generated visual backups kept locally during design iteration
+public/*-backup.*
+public/*imagemagick-backup.*
+
+# Project markdown drafts and internal notes
+*.md
+!README.md
