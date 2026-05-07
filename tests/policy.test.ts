@@ -45,6 +45,18 @@ describe("evaluatePolicy", () => {
     expect(evaluatePolicy({ ...operation, tokenSymbol: "RUG" }, treasuryContext, balance).status).toBe("blocked");
   });
 
+  it("allows USDT payouts", () => {
+    const usdtMint = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
+
+    expect(
+      evaluatePolicy(
+        { ...operation, tokenSymbol: "USDT", tokenMint: usdtMint },
+        { ...treasuryContext, holdings: [{ symbol: "USDT", balance: "5000", spendable: "5000" }] },
+        { ...balance, tokenSymbol: "USDT", tokenMint: usdtMint }
+      ).status
+    ).toBe("pass");
+  });
+
   it("requires manual review for SOL amounts without a fiat price feed", () => {
     expect(evaluatePolicy({ ...operation, tokenSymbol: "SOL", tokenMint: undefined, amount: "0.5" }, treasuryContext, { ...balance, tokenSymbol: "SOL", tokenMint: undefined }).status).toBe("needs_review");
   });

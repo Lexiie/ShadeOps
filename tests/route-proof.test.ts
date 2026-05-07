@@ -73,6 +73,11 @@ describe("route and proof modules", () => {
     expect(() => validateExecutionReferencesForPlan(plan, [{ ...executionReference, metadata: { operationId: plan.operationId, tokenMint: "WrongMint11111111111111111111111111111111" } }])).toThrow(/token mint/i);
   });
 
+  it("rejects execution references with mismatched base-unit amounts", () => {
+    const plan = createExecutionPlan(contributorOperation, policyResult, selectPrivacyRoute(contributorOperation));
+    expect(() => validateExecutionReferencesForPlan(plan, [{ ...executionReference, metadata: { operationId: plan.operationId, amountBaseUnits: "1" } }])).toThrow(/amount/i);
+  });
+
   it("rejects unconfirmed execution signatures", async () => {
     await expect(verifyExecutionReferencesOnChain([executionReference], { fetchStatus: async () => ({ err: null, confirmationStatus: "processed" }) })).rejects.toThrow(/confirmed or finalized/i);
   });
@@ -131,5 +136,23 @@ describe("route and proof modules", () => {
         fetchStatus: async () => ({ ...confirmedByAdmin, accountAddresses: [adminSigner] })
       })
     ).rejects.toThrow(/approved recipient/i);
+  });
+
+  it("rejects Cloak SPL signatures whose decoded transaction misses the approved mint", async () => {
+    const cloakUsdcOperation = { ...contributorOperation, reason: "Vendor payout" };
+    const cloakPlan = createExecutionPlan(cloakUsdcOperation, policyResult, selectPrivacyRoute(cloakUsdcOperation));
+    const cloakReference: ExecutionReference = {
+      ...executionReference,
+      protocol: "cloak",
+      label: "cloak-full-withdraw",
+      metadata: { operationId: cloakPlan.operationId, recipient: contributorOperation.recipientWallet ?? "", tokenMint: contributorOperation.tokenMint ?? "", amountBaseUnits: "50000000" }
+    };
+
+    await expect(
+      verifyExecutionReferencesOnChain([cloakReference], {
+        expectedPlan: cloakPlan,
+        fetchStatus: async () => ({ ...confirmedByAdmin, accountAddresses: [adminSigner, contributorOperation.recipientWallet ?? ""] })
+      })
+    ).rejects.toThrow(/approved token mint/i);
   });
 });

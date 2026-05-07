@@ -59,7 +59,7 @@ const DEFAULT_DRAFT: ContactDraft = {
   label: "",
   walletAddress: "",
   role: "contributor",
-  allowedTokens: "USDC,SOL",
+  allowedTokens: "USDC,USDT,SOL",
   status: "active",
   source: "Manual dashboard entry"
 };
@@ -837,7 +837,7 @@ function Alert({ message }: Readonly<{ message: string }>): ReactElement {
 }
 
 function resolveIntentPreview(intent: string, contacts: Contact[]): { status: "resolved" | "unresolved"; label: string; amount: string; token: string; walletAddress?: string; message: string } {
-  const amountMatch = intent.match(/(\d+(?:\.\d+)?)\s*(USDC|SOL|BONK|USD)?/i);
+  const amountMatch = intent.match(/(\d+(?:\.\d+)?)\s*(USDC|USDT|SOL|BONK|USD)?/i);
   const recipientMatch = intent.match(/pay\s+([a-z0-9_.-]+)/i);
   const label = recipientMatch?.[1] ?? "Unresolved";
   const token = amountMatch?.[2]?.toUpperCase() === "USD" ? "USDC" : amountMatch?.[2]?.toUpperCase() ?? "USDC";

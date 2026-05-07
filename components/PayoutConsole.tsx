@@ -544,7 +544,7 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
           <Metric label="Reason code" value={planResponse.routeDecision.reasonCode} mono />
           <p className="text-sm leading-6 text-muted-foreground">{planResponse.routeDecision.explanation}</p>
           <div className="rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-xs leading-5 text-muted-foreground">
-            <span className="font-semibold text-accent">Route support:</span> Cloak supports private SOL, USDC, and USDT flows. Umbra supports receiver-claimable SPL token payouts.
+            <span className="font-semibold text-accent">Route support:</span> Cloak is wired for SOL, USDC, and USDT shield-and-withdraw flows. Umbra supports receiver-claimable SPL token payouts.
           </div>
           {planResponse.routeDecision.mode === "umbra" ? <UmbraClaimNotice /> : null}
         </div>

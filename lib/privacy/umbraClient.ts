@@ -2,6 +2,7 @@
 
 import { decimalToBaseUnits } from "./amounts";
 import type { PrivacyExecutionReference, PrivacyExecutionRequest, WalletExecutionAdapter } from "./types";
+import { decimalsForToken } from "@/lib/tokens";
 
 export type UmbraClaimScanResult = {
   receivedCount: number;
@@ -236,7 +237,7 @@ export async function signUmbraTransactionWithMessageSigner(transaction: unknown
  * Resolves token decimals for the currently supported payout tokens.
  */
 export function getTokenDecimals(symbol: string): number {
-  return symbol.toUpperCase() === "USDC" ? 6 : 9;
+  return decimalsForToken(symbol);
 }
 
 /**

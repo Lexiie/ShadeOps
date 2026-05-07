@@ -58,6 +58,10 @@ function validateDecodedTransactionHints(reference: ExecutionReference, status: 
     throw new Error("Decoded Cloak withdrawal transaction does not reference the approved recipient.");
   }
 
+  if (reference.protocol === "cloak" && tokenMint && !accounts.has(tokenMint)) {
+    throw new Error("Decoded Cloak transaction does not reference the approved token mint.");
+  }
+
   if (reference.protocol === "umbra" && tokenMint && !accounts.has(tokenMint)) {
     throw new Error("Decoded Umbra transaction does not reference the approved token mint.");
   }

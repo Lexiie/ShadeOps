@@ -1,7 +1,7 @@
 import type { BalanceVerification, ParsedPayoutOperation, TreasuryContext } from "@/lib/schemas/payout";
 import type { PolicyRuleResult } from "@/lib/schemas/policy";
+import { isKnownTokenSymbol } from "@/lib/tokens";
 
-const ALLOWED_TOKEN_SYMBOLS = new Set(["USDC", "SOL"]);
 const REVIEW_THRESHOLD_USD = 1000;
 const BLOCK_THRESHOLD_USD = 10000;
 const ABNORMAL_OUTFLOW_USD = 5000;
@@ -12,7 +12,7 @@ const SOL_BLOCK_THRESHOLD = 100;
  * Checks whether the payout token is allowed by ShadeOps demo policy.
  */
 export function checkAllowedToken(operation: ParsedPayoutOperation): PolicyRuleResult {
-  if (!ALLOWED_TOKEN_SYMBOLS.has(operation.tokenSymbol.toUpperCase())) {
+  if (!isKnownTokenSymbol(operation.tokenSymbol)) {
     return {
       ruleId: "token.allowlist",
       status: "blocked",

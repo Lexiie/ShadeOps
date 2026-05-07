@@ -21,7 +21,7 @@ const CONTACTS: Contact[] = [
     label: "Alice",
     walletAddress: "4Ym2txdd8uvG8uo39Vnrqwa7fZNQWJeRaoQTSJiK67HH",
     role: "contributor",
-    allowedTokens: ["USDC", "SOL"],
+    allowedTokens: ["USDC", "USDT", "SOL"],
     status: "active",
     source: "Team contributor list",
     updatedAt: "2026-04-28T00:00:00.000Z"

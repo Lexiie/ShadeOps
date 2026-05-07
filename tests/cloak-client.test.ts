@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
-import { executeCloakPayout } from "@/lib/privacy/cloakClient";
+import { executeCloakPayout, resolveCloakToken } from "@/lib/privacy/cloakClient";
 import type { PrivacyExecutionRequest } from "@/lib/privacy/types";
 
 const validRecipient = "11111111111111111111111111111111";
@@ -46,7 +46,7 @@ describe("executeCloakPayout", () => {
     );
   });
 
-  it("rejects non-SOL payouts until token execution is wired", async () => {
+  it("rejects tokens outside the Cloak adapter allowlist", async () => {
     await expect(
       executeCloakPayout({
         ...baseRequest,
@@ -54,12 +54,23 @@ describe("executeCloakPayout", () => {
           ...baseRequest.plan,
           parsedOperation: {
             ...baseRequest.plan.parsedOperation,
-            tokenSymbol: "USDC",
-            tokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+            tokenSymbol: "BONK",
+            tokenMint: "DezXAZ8z7PnrnRJjz3XtVJfgL3eeZ6t19sxrHHjZ5Y6"
           }
         }
       })
-    ).rejects.toThrow(/native SOL execution/i);
+    ).rejects.toThrow(/SOL, USDC, and USDT/i);
+  });
+
+  it("resolves USDC and USDT mint metadata for Cloak SPL execution", () => {
+    const nativeMint = new PublicKey("So11111111111111111111111111111111111111112");
+
+    expect(resolveCloakToken("USDC", undefined, nativeMint)).toMatchObject({
+      symbol: "USDC",
+      decimals: 6
+    });
+    expect(resolveCloakToken("USDC", undefined, nativeMint).mint.toBase58()).toBe("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+    expect(resolveCloakToken("USDT", undefined, nativeMint).mint.toBase58()).toBe("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
   });
 
   it("requires a resolved recipient wallet", async () => {

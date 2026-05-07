@@ -1,5 +1,6 @@
 import type { ExecutionPlan, ExecutionReference } from "@/lib/schemas/proof";
-import { solToLamports } from "@/lib/privacy/amounts";
+import { decimalToBaseUnits, solToLamports } from "@/lib/privacy/amounts";
+import { decimalsForToken } from "@/lib/tokens";
 
 /**
  * Ensures browser-reported execution references belong to the reviewed plan.
@@ -26,6 +27,10 @@ export function validateExecutionReferencesForPlan(plan: ExecutionPlan, referenc
     }
 
     if (reference.metadata.amountLamports && plan.parsedOperation.tokenSymbol === "SOL" && reference.metadata.amountLamports !== solToLamports(plan.parsedOperation.amount).toString()) {
+      throw new Error("Execution reference amount does not match the approved plan.");
+    }
+
+    if (reference.metadata.amountBaseUnits && reference.metadata.amountBaseUnits !== decimalToBaseUnits(plan.parsedOperation.amount, decimalsForToken(plan.parsedOperation.tokenSymbol)).toString()) {
       throw new Error("Execution reference amount does not match the approved plan.");
     }
 

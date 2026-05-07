@@ -1,8 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { parsedPayoutOperationSchema, type ParsedPayoutOperation, type PayoutIntent } from "@/lib/schemas/payout";
-
-const DEFAULT_USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+import { defaultMintForToken } from "@/lib/tokens";
 
 /**
  * Parses a payout intent into a validated operation draft without granting execution authority.
@@ -21,7 +20,7 @@ export async function parsePayoutIntent(intent: PayoutIntent): Promise<ParsedPay
         "You are advisory only: never claim a payout is approved, executed, or safe.",
         "Extract only facts present in the request. If a recipient wallet is not present, omit recipientWallet.",
         "Use decimal strings for amount. Keep reason concise, for example Bounty payout, Vendor payout, Grant payout, or Contributor payout.",
-        "For USDC on Solana, use token mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v. For native SOL, omit tokenMint."
+        "For USDC on Solana, use token mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v. For USDT on Solana, use token mint Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB. For native SOL, omit tokenMint."
       ].join(" "),
       prompt: `Treasury wallet: ${intent.treasuryWallet}\nPayout request: ${intent.rawText}`
     });
@@ -37,14 +36,14 @@ export async function parsePayoutIntent(intent: PayoutIntent): Promise<ParsedPay
  * Parses a payout intent locally so demos and tests do not require an AI provider key.
  */
 export function parsePayoutIntentDeterministically(intent: PayoutIntent): ParsedPayoutOperation {
-  const amountMatch = intent.rawText.match(/(\d+(?:\.\d+)?)\s*(USDC|SOL|BONK)?/i);
+  const amountMatch = intent.rawText.match(/(\d+(?:\.\d+)?)\s*(USDC|USDT|SOL|BONK)?/i);
   const recipientMatch = intent.rawText.match(/pay\s+([a-z0-9_.-]+)/i);
   const reason = inferReason(intent.rawText);
 
   return normalizeParsedOperation({
     recipientLabel: recipientMatch?.[1] ?? "Unresolved recipient",
     tokenSymbol: amountMatch?.[2]?.toUpperCase() ?? "USDC",
-    tokenMint: amountMatch?.[2]?.toUpperCase() === "SOL" ? undefined : DEFAULT_USDC_MINT,
+    tokenMint: amountMatch?.[2]?.toUpperCase() === "SOL" ? undefined : defaultMintForToken(amountMatch?.[2] ?? "USDC"),
     amount: amountMatch?.[1] ?? "0",
     reason,
     privacyRequested: /private|privately|cloak|umbra/i.test(intent.rawText)
@@ -67,17 +66,6 @@ function normalizeParsedOperation(operation: ParsedPayoutOperation, intent: Payo
     reason: operation.reason.trim() || inferReason(intent.rawText),
     privacyRequested: operation.privacyRequested ?? /private|privately|cloak|umbra/i.test(intent.rawText)
   });
-}
-
-/**
- * Returns known token mints for tokens supported by the policy demo.
- */
-function defaultMintForToken(tokenSymbol: string): string | undefined {
-  if (tokenSymbol === "USDC") {
-    return DEFAULT_USDC_MINT;
-  }
-
-  return undefined;
 }
 
 /**

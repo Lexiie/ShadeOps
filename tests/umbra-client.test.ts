@@ -46,8 +46,9 @@ describe("Umbra client helpers", () => {
     expect(toUmbraExecutionReferences(["sig-1", "", "sig-2"], "op-1", "recipient-wallet", "mint-address")).toHaveLength(2);
   });
 
-  it("uses USDC decimals and defaults other tokens to 9 decimals", () => {
+  it("uses stablecoin decimals and defaults other tokens to 9 decimals", () => {
     expect(getTokenDecimals("USDC")).toBe(6);
+    expect(getTokenDecimals("USDT")).toBe(6);
     expect(getTokenDecimals("SOL")).toBe(9);
   });
 
