@@ -37,6 +37,20 @@ The product is built around a review-first control plane:
 - **Privacy executes:** Umbra or Cloak handles the private payment path.
 - **Proof records:** the server stores a decision hash and verifies execution signatures before recording proof.
 
+## What ShadeOps Owns
+
+ShadeOps is an operations layer, not a thin protocol wrapper. Umbra and Cloak provide private execution adapters; Zerion provides treasury context; Supabase provides server-side persistence. ShadeOps owns the payout workflow around those systems:
+
+- workspace-scoped wallet sessions, roles, and membership;
+- recipient address book and deterministic name-to-wallet resolution;
+- treasury configuration that separates operator signers from treasury addresses;
+- deterministic policy gates for allowed tokens, amount thresholds, balance sufficiency, recipient resolution, and treasury outflow review;
+- route selection between private payment adapters;
+- admin approval and client-side wallet signing boundaries;
+- proof package hashing, RPC signature verification, admin signer binding, decoded transaction hints, and workspace audit records.
+
+The value is the controlled payout process before and after private execution, not simply a call to a privacy SDK.
+
 Core flow:
 
 ![ShadeOps private payout workflow](assets/readme/workflow.svg)
@@ -65,7 +79,7 @@ Payout intent
 - Solana Wallet Adapter
 - `@solana/web3.js`
 - Vercel AI SDK
-- Gemini provider via `@ai-sdk/google` for optional agent parsing
+- Optional AI provider through Vercel AI SDK for agent parsing
 - Zod
 - Zerion API or CLI
 - `@umbra-privacy/sdk`
@@ -86,13 +100,13 @@ Payout intent
 
 ## Hackathon Track Fit
 
-ShadeOps is a fit for the privacy payment tracks because it turns protocol SDKs into a concrete operator workflow: teams can prepare, review, sign, execute, and record private payouts without pretending the AI is the financial authority.
+ShadeOps is a fit for the privacy payment tracks because it turns protocol SDKs into a concrete operator workflow. Teams can prepare, review, sign, execute, and record private payouts without pretending the AI is the financial authority.
 
 ### Cloak Track: Real-World Private Payments
 
 The Cloak track asks builders to create real-world payment solutions with privacy. ShadeOps applies Cloak to a familiar treasury use case: private SOL payouts to vendors or operators where the team wants an audit-friendly admin flow without publishing a direct treasury-to-recipient payment graph.
 
-How ShadeOps uses Cloak:
+How the Cloak adapter fits into ShadeOps:
 
 - The route selector recommends Cloak for vendor-style and SOL payout flows.
 - `lib/privacy/cloakClient.ts` uses `@cloak.dev/sdk` 0.1.6 functional UTXO APIs, not the removed legacy `generateNote`/`send` path.
@@ -102,7 +116,7 @@ How ShadeOps uses Cloak:
 
 Why this design matters for Cloak:
 
-- Cloak provides private payment execution, while ShadeOps provides the operational guardrails around it.
+- Cloak provides private payment execution; ShadeOps provides the workspace, policy, approval, and proof controls around it.
 - Teams still get human approval, treasury checks, policy review, and proof records.
 - The app avoids implying autonomous fund movement, which is important for real treasuries.
 
@@ -110,7 +124,7 @@ Why this design matters for Cloak:
 
 The Umbra side track rewards projects that build with Umbra. ShadeOps uses Umbra for receiver-claimable SPL token payouts, especially USDC-style contributor, bounty, and grant payments where the recipient may need to claim privately with their wallet.
 
-How ShadeOps uses Umbra:
+How the Umbra adapter fits into ShadeOps:
 
 - The route selector recommends Umbra for bounty/contributor-style SPL payout flows.
 - `lib/privacy/umbraClient.ts` uses `@umbra-privacy/sdk` and `@umbra-privacy/web-zk-prover` to create receiver-claimable UTXOs from public SPL balance.
@@ -122,7 +136,7 @@ Why this design matters for Umbra:
 
 - Receiver-claimable payouts fit real contributor operations: the sender can create the private claimable object, and the recipient can complete the claim flow with their own wallet.
 - ShadeOps makes the claim requirement explicit in UI copy so operators do not mistake a claimable payout for an immediately visible public wallet balance.
-- The product keeps protocol privacy while still preserving a reviewable operation record.
+- The product keeps protocol privacy while still preserving a reviewable operation record before and after execution.
 
 ### Supporting Zerion Integration
 
@@ -150,7 +164,7 @@ If a team does not have a treasury yet, create one in the wallet/multisig/DAO to
 ## Route And Token Support
 
 - ShadeOps supports SOL and USDC payout planning.
-- Cloak supports private SOL, USDC, and USDT flows.
+- Cloak's protocol surface supports private SOL, USDC, and USDT flows.
 - Umbra is used for receiver-claimable SPL token payouts; recipients may need to claim with their wallet before funds appear in their public balance.
 - The current ShadeOps Cloak adapter path is wired for native SOL execution. Cloak USDC/USDT execution needs the token or swap execution path enabled before production use.
 
