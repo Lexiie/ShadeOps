@@ -66,3 +66,4 @@ public/*imagemagick-backup.*
 # Project markdown drafts and internal notes
 *.md
 !README.md
+.vercel
