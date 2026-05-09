@@ -125,3 +125,5 @@ grant all on all sequences in schema public to service_role;
 
 -- ShadeOps server uses SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS.
 -- Do not expose the service role key to the browser.
+
+notify pgrst, 'reload schema';
