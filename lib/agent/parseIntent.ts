@@ -20,7 +20,7 @@ export async function parsePayoutIntent(intent: PayoutIntent): Promise<ParsedPay
         "You are advisory only: never claim a payout is approved, executed, or safe.",
         "Extract only facts present in the request. If a recipient wallet is not present, omit recipientWallet.",
         "Use decimal strings for amount. Keep reason concise, for example Bounty payout, Vendor payout, Grant payout, or Contributor payout.",
-        "For USDC on Solana, use token mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v. For USDT on Solana, use token mint Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB. For native SOL, omit tokenMint."
+        "For USDC on Solana devnet, use the Cloak devnet mock USDC mint 61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf. For USDT on Solana mainnet, use token mint Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB. For native SOL, omit tokenMint."
       ].join(" "),
       prompt: `Treasury wallet: ${intent.treasuryWallet}\nPayout request: ${intent.rawText}`
     });

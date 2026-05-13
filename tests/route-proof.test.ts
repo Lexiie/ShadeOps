@@ -13,7 +13,7 @@ const contributorOperation: ParsedPayoutOperation = {
   recipientLabel: "Alice",
   recipientWallet: "RecipientWallet1111111111111111111111111111111",
   tokenSymbol: "USDC",
-  tokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  tokenMint: "61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf",
   amount: "50",
   reason: "Bounty payout",
   privacyRequested: true

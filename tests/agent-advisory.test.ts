@@ -9,7 +9,7 @@ import type { PolicyResult } from "@/lib/schemas/policy";
 const operation: ParsedPayoutOperation = {
   recipientLabel: "Alice",
   tokenSymbol: "USDC",
-  tokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  tokenMint: "61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf",
   amount: "50",
   reason: "Bounty payout",
   privacyRequested: true

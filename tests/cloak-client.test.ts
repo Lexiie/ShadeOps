@@ -46,7 +46,7 @@ describe("executeCloakPayout", () => {
     );
   });
 
-  it("rejects tokens outside the Cloak adapter allowlist", async () => {
+  it("rejects tokens outside the Cloak devnet adapter allowlist", async () => {
     await expect(
       executeCloakPayout({
         ...baseRequest,
@@ -59,18 +59,25 @@ describe("executeCloakPayout", () => {
           }
         }
       })
-    ).rejects.toThrow(/SOL, USDC, and USDT/i);
+    ).rejects.toThrow(/SOL and devnet mock USDC/i);
   });
 
-  it("resolves USDC and USDT mint metadata for Cloak SPL execution", () => {
+  it("resolves USDC to the Cloak devnet mock mint", () => {
     const nativeMint = new PublicKey("So11111111111111111111111111111111111111112");
+    const devnetMockUsdcMint = new PublicKey("61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf");
 
-    expect(resolveCloakToken("USDC", undefined, nativeMint)).toMatchObject({
+    expect(resolveCloakToken("USDC", undefined, nativeMint, devnetMockUsdcMint)).toMatchObject({
       symbol: "USDC",
       decimals: 6
     });
-    expect(resolveCloakToken("USDC", undefined, nativeMint).mint.toBase58()).toBe("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-    expect(resolveCloakToken("USDT", undefined, nativeMint).mint.toBase58()).toBe("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+    expect(resolveCloakToken("USDC", undefined, nativeMint, devnetMockUsdcMint).mint.toBase58()).toBe("61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf");
+  });
+
+  it("rejects USDT on Cloak devnet", () => {
+    const nativeMint = new PublicKey("So11111111111111111111111111111111111111112");
+    const devnetMockUsdcMint = new PublicKey("61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf");
+
+    expect(() => resolveCloakToken("USDT", undefined, nativeMint, devnetMockUsdcMint)).toThrow(/mainnet Cloak for USDT/i);
   });
 
   it("requires a resolved recipient wallet", async () => {

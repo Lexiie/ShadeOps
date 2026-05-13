@@ -15,9 +15,9 @@ importers:
       '@ai-sdk/google':
         specifier: ^3.0.64
         version: 3.0.64(zod@3.25.76)
-      '@cloak.dev/sdk':
-        specifier: 0.1.6
-        version: 0.1.6(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      '@cloak.dev/sdk-devnet':
+        specifier: 0.1.5-devnet.1
+        version: 0.1.5-devnet.1(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@prisma/client':
         specifier: ^7.8.0
         version: 7.8.0(typescript@5.9.3)
@@ -214,8 +214,8 @@ packages:
   '@bufbuild/protobuf@2.12.0':
     resolution: {integrity: sha512-B/XlCaFIP8LOwzo+bz5uFzATYokcwCKQcghqnlfwSmM5eX/qTkvDBnDPs+gXtX/RyjxJ4DRikECcPJbyALA8FA==}
 
-  '@cloak.dev/sdk@0.1.6':
-    resolution: {integrity: sha512-qzjyszfVWRX+IWZvkBkkLryHVMuz39s5hBHrRrTwYbmmTY57gf9q6vdPZt9XtiNTF2gNWQ3RCqIOfJqEW5gl8Q==}
+  '@cloak.dev/sdk-devnet@0.1.5-devnet.1':
+    resolution: {integrity: sha512-wtjQWc7jfIuH5HCznOoADyaG3shnf0STb1yuPLYWnGW0r9mgSencgqGBhinAkyCWRPkrt079MZVZWgbjgF6OsQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@solana/spl-token': '>=0.4.9'
@@ -4096,10 +4096,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   vite-node@2.1.9:
@@ -4444,7 +4446,7 @@ snapshots:
 
   '@bufbuild/protobuf@2.12.0': {}
 
-  '@cloak.dev/sdk@0.1.6(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+  '@cloak.dev/sdk-devnet@0.1.5-devnet.1(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
     dependencies:
       '@jup-ag/api': 6.0.48
       '@lightprotocol/hasher.rs': 0.2.1

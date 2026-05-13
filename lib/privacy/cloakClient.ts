@@ -3,13 +3,15 @@
 import { PublicKey } from "@solana/web3.js";
 import { decimalToBaseUnits } from "./amounts";
 import type { PrivacyExecutionReference, PrivacyExecutionRequest } from "./types";
-import { decimalsForToken, defaultMintForToken, normalizeTokenSymbol } from "@/lib/tokens";
+import { decimalsForToken, normalizeTokenSymbol } from "@/lib/tokens";
+
+const CLOAK_DEVNET_RELAY_URL = "https://api.devnet.cloak.ag";
 
 /**
- * Executes a Cloak payout through the Cloak 0.1.6 functional UTXO API.
+ * Executes a Cloak devnet payout through the Cloak functional UTXO API.
  *
  * This path intentionally avoids the removed legacy `generateNote`/`send` SDK API.
- * It shields SOL or a supported SPL token into a fresh UTXO, then withdraws that
+ * It shields SOL or devnet mock USDC into a fresh UTXO, then withdraws that
  * shielded output to the resolved external recipient address so the public sender
  * trail is not a direct treasury-to-recipient transfer.
  */
@@ -22,8 +24,8 @@ export async function executeCloakPayout({ plan, connection, wallet }: PrivacyEx
     throw new Error("Recipient wallet is required for Cloak execution.");
   }
 
-  const { CLOAK_PROGRAM_ID, NATIVE_SOL_MINT, createUtxo, createZeroUtxo, fullWithdraw, generateUtxoKeypair, transact } = await import("@cloak.dev/sdk");
-  const token = resolveCloakToken(plan.parsedOperation.tokenSymbol, plan.parsedOperation.tokenMint, NATIVE_SOL_MINT);
+  const { CLOAK_PROGRAM_ID, DEVNET_MOCK_USDC_MINT, NATIVE_SOL_MINT, createUtxo, createZeroUtxo, fullWithdraw, generateUtxoKeypair, transact } = await import("@cloak.dev/sdk-devnet");
+  const token = resolveCloakToken(plan.parsedOperation.tokenSymbol, plan.parsedOperation.tokenMint, NATIVE_SOL_MINT, DEVNET_MOCK_USDC_MINT);
   const amountBaseUnits = decimalToBaseUnits(plan.parsedOperation.amount, token.decimals);
   const recipient = new PublicKey(plan.parsedOperation.recipientWallet);
   const outputOwner = await generateUtxoKeypair();
@@ -35,7 +37,7 @@ export async function executeCloakPayout({ plan, connection, wallet }: PrivacyEx
     signMessage: wallet.signMessage,
     depositorPublicKey: wallet.publicKey,
     walletPublicKey: wallet.publicKey,
-    relayUrl: getOptionalPublicEnv("NEXT_PUBLIC_CLOAK_RELAY_URL"),
+    relayUrl: getOptionalPublicEnv("NEXT_PUBLIC_CLOAK_RELAY_URL") ?? CLOAK_DEVNET_RELAY_URL,
     enforceViewingKeyRegistration: false
   };
 
@@ -92,24 +94,26 @@ function createCloakReferenceMetadata(
   };
 }
 
-export function resolveCloakToken(symbol: string, tokenMint: string | undefined, nativeSolMint: PublicKey): { symbol: string; mint: PublicKey; decimals: number } {
+export function resolveCloakToken(symbol: string, tokenMint: string | undefined, nativeSolMint: PublicKey, devnetMockUsdcMint: PublicKey): { symbol: string; mint: PublicKey; decimals: number } {
   const tokenSymbol = normalizeTokenSymbol(symbol);
 
   if (tokenSymbol === "SOL") {
     return { symbol: tokenSymbol, mint: nativeSolMint, decimals: decimalsForToken(tokenSymbol) };
   }
 
-  if (tokenSymbol !== "USDC" && tokenSymbol !== "USDT") {
-    throw new Error("Cloak execution in ShadeOps currently supports SOL, USDC, and USDT only.");
+  if (tokenSymbol === "USDT") {
+    throw new Error("Cloak devnet execution currently supports SOL and devnet mock USDC only; use mainnet Cloak for USDT.");
   }
 
-  const resolvedMint = tokenMint ?? defaultMintForToken(tokenSymbol);
-
-  if (!resolvedMint) {
-    throw new Error(`Token mint is required for Cloak ${tokenSymbol} execution.`);
+  if (tokenSymbol !== "USDC") {
+    throw new Error("Cloak devnet execution in ShadeOps currently supports SOL and devnet mock USDC only.");
   }
 
-  return { symbol: tokenSymbol, mint: new PublicKey(resolvedMint), decimals: decimalsForToken(tokenSymbol) };
+  if (tokenMint && tokenMint !== devnetMockUsdcMint.toBase58()) {
+    throw new Error("Cloak devnet USDC execution requires the SDK devnet mock USDC mint.");
+  }
+
+  return { symbol: tokenSymbol, mint: devnetMockUsdcMint, decimals: decimalsForToken(tokenSymbol) };
 }
 
 function getOptionalPublicEnv(name: string): string | undefined {

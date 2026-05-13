@@ -84,7 +84,7 @@ Payout intent
 - Zerion API or CLI
 - `@umbra-privacy/sdk`
 - `@umbra-privacy/web-zk-prover`
-- `@cloak.dev/sdk`
+- `@cloak.dev/sdk-devnet`
 - Prisma
 - Supabase REST/PostgREST API
 
@@ -104,13 +104,13 @@ ShadeOps is a fit for the privacy payment tracks because it turns protocol SDKs 
 
 ### Cloak Track: Real-World Private Payments
 
-The Cloak track asks builders to create real-world payment solutions with privacy. ShadeOps applies Cloak to a familiar treasury use case: private SOL, USDC, or USDT payouts to vendors or operators where the team wants an audit-friendly admin flow without publishing a direct treasury-to-recipient payment graph.
+The Cloak track asks builders to create real-world payment solutions with privacy. ShadeOps applies Cloak to a familiar treasury use case: private SOL and devnet mock USDC payouts to vendors or operators where the team wants an audit-friendly admin flow without publishing a direct treasury-to-recipient payment graph.
 
 How the Cloak adapter fits into ShadeOps:
 
 - The route selector recommends Cloak for vendor-style payout flows and native SOL private payouts.
-- `lib/privacy/cloakClient.ts` uses `@cloak.dev/sdk` 0.1.6 functional UTXO APIs, not the removed legacy `generateNote`/`send` path.
-- The current adapter is wired for native SOL, USDC, and USDT: it shields the selected asset into a UTXO and withdraws to the resolved recipient.
+- `lib/privacy/cloakClient.ts` uses `@cloak.dev/sdk-devnet` functional UTXO APIs, not the removed legacy `generateNote`/`send` path.
+- The current devnet adapter is wired for native SOL and Cloak devnet mock USDC: it shields the selected asset into a UTXO and withdraws to the resolved recipient.
 - The browser wallet signs client-side; ShadeOps never holds treasury private keys.
 - The proof route verifies the reported Cloak signatures through Solana RPC, checks the approving admin signer, rejects duplicate signatures, binds the reference to the operation id, and checks the decoded withdrawal transaction references the approved recipient when that value is visible.
 
@@ -164,7 +164,7 @@ If a team does not have a treasury yet, create one in the wallet/multisig/DAO to
 ## Route And Token Support
 
 - ShadeOps supports SOL, USDC, and USDT payout planning.
-- Cloak is wired in ShadeOps for private SOL, USDC, and USDT shield-and-withdraw flows.
+- Cloak devnet is wired in ShadeOps for private SOL and devnet mock USDC shield-and-withdraw flows.
 - Umbra is used for receiver-claimable SPL token payouts; recipients may need to claim with their wallet before funds appear in their public balance.
 - USDC and USDT use their Solana SPL token mints and require the treasury wallet to hold the corresponding associated token account balance.
 
@@ -239,9 +239,9 @@ NEXT_PUBLIC_SOLANA_RPC_URL="https://api.devnet.solana.com"
 NEXT_PUBLIC_SOLANA_RPC_WS_URL="wss://api.devnet.solana.com"
 NEXT_PUBLIC_UMBRA_INDEXER_API_ENDPOINT="https://indexer.umbraprivacy.com"
 NEXT_PUBLIC_UMBRA_RELAYER_API_ENDPOINT="https://replace-with-umbra-relayer.example"
-NEXT_PUBLIC_CLOAK_RELAY_URL=""
+NEXT_PUBLIC_CLOAK_RELAY_URL="https://api.devnet.cloak.ag"
 ```
 
-Cloak execution uses `@cloak.dev/sdk` with the connected wallet adapter. `NEXT_PUBLIC_CLOAK_RELAY_URL` is optional; when unset, the SDK uses its default Cloak relay. Umbra execution uses `@umbra-privacy/sdk` and `@umbra-privacy/web-zk-prover` for receiver-claimable SPL UTXOs.
+Cloak execution uses `@cloak.dev/sdk-devnet` with the connected wallet adapter, the devnet Cloak program, the devnet relay, and Solana devnet RPC. Umbra execution uses `@umbra-privacy/sdk` and `@umbra-privacy/web-zk-prover` for receiver-claimable SPL UTXOs.
 
 Umbra support includes creating receiver-claimable SPL token UTXOs, scanning received claimables, and claiming them into the recipient encrypted balance when the recipient wallet, indexer, relayer, and prover configuration are available.

@@ -43,7 +43,7 @@ const faqs = [
   },
   {
     question: "Which tokens are supported?",
-    answer: "ShadeOps supports SOL, USDC, and USDT payout planning. Cloak is wired for SOL, USDC, and USDT shield-and-withdraw flows. Umbra creates receiver-claimable SPL token payouts, so recipients may need to claim with their wallet."
+    answer: "ShadeOps supports SOL, USDC, and USDT payout planning. Cloak devnet is wired for SOL and devnet mock USDC shield-and-withdraw flows. Umbra creates receiver-claimable SPL token payouts, so recipients may need to claim with their wallet."
   },
   {
     question: "Are there fees?",

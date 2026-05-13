@@ -6,7 +6,7 @@ const operation: ParsedPayoutOperation = {
   recipientLabel: "Alice",
   recipientWallet: "RecipientWallet1111111111111111111111111111111",
   tokenSymbol: "USDC",
-  tokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  tokenMint: "61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf",
   amount: "50",
   reason: "Bounty payout",
   privacyRequested: true
@@ -25,7 +25,7 @@ const treasuryContext: TreasuryContext = {
 
 const balance: BalanceVerification = {
   tokenSymbol: "USDC",
-  tokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    tokenMint: "61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf",
   requestedAmount: "50",
   spendableAmount: "5000",
   sufficient: true,

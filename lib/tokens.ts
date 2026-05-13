@@ -1,5 +1,5 @@
 export const KNOWN_TOKEN_MINTS = {
-  USDC: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  USDC: "61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf",
   USDT: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
 } as const;
 
