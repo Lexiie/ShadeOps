@@ -2,16 +2,13 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddress, getMint, getAccount } from "@solana/spl-token";
 import { decimalToBaseUnits, solToLamports } from "@/lib/privacy/amounts";
 import { type BalanceVerification, type ParsedPayoutOperation, type TreasuryContext, balanceVerificationSchema } from "@/lib/schemas/payout";
+import { resolveDevnetRpcEndpoint } from "@/lib/solanaRpc";
 
 /**
  * Verifies exact spendable balance using Solana RPC for SOL and SPL tokens.
  */
 export async function verifyExactBalance(operation: ParsedPayoutOperation, treasuryContext: TreasuryContext): Promise<BalanceVerification> {
-  const rpcUrl = process.env.SOLANA_RPC_URL;
-
-  if (!rpcUrl) {
-    throw new Error("SOLANA_RPC_URL is required for exact balance verification.");
-  }
+  const rpcUrl = resolveDevnetRpcEndpoint(process.env.SOLANA_RPC_URL);
 
   if (operation.tokenSymbol === "SOL") {
     return verifySolBalance(operation, treasuryContext.treasuryWallet, rpcUrl);
