@@ -42,8 +42,8 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)"
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "Arial", "system-ui", "sans-serif"],
-        hero: ["var(--font-hero)", "var(--font-sans)", "Arial", "sans-serif"],
+        sans: ["var(--font-nunito)", "Arial", "system-ui", "sans-serif"],
+        hero: ["var(--font-hero)", "Arial", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"]
       },
       fontSize: {

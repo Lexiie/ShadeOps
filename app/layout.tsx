@@ -7,7 +7,7 @@ import { WalletContextProvider } from "@/components/WalletContextProvider";
 import { cn } from "@/lib/utils";
 
 const lilitaOne = Lilita_One({ subsets: ["latin"], weight: "400", variable: "--font-hero" });
-const nunito = Nunito({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-sans" });
+const nunito = Nunito({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-nunito" });
 const jetBrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>): ReactElement {
   return (
     <html lang="en" className="dark">
-      <body className={cn(lilitaOne.variable, nunito.variable, jetBrainsMono.variable, "min-h-screen font-sans")}>
+      <body className={cn(lilitaOne.variable, nunito.variable, nunito.className, jetBrainsMono.variable, "min-h-screen")}>
         <WalletContextProvider>{children}</WalletContextProvider>
       </body>
     </html>
