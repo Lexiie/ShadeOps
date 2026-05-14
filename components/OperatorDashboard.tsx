@@ -532,7 +532,7 @@ function DashboardAccessGate({ connecting, isConnected, isSigningIn, error, onSi
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-primary">
             <WalletCards aria-hidden className="h-5 w-5" />
           </div>
-          <p className="mt-5 font-mono text-xs uppercase text-primary">Wallet required</p>
+          <p className="mt-5 text-xs font-semibold uppercase text-primary">Wallet required</p>
           <h1 className="mt-3 text-2xl font-medium tracking-normal text-foreground sm:text-3xl">Connect and sign to open the dashboard.</h1>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             Contacts, treasury settings, policy lanes, and proof records are operator surfaces. The payout console remains visible, but dashboard data requires a signed wallet session.
@@ -568,7 +568,7 @@ function WorkspaceOnboarding({ isLoading, isCreating, error, workspaceName, onWo
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-primary">
             <Database aria-hidden className="h-5 w-5" />
           </div>
-          <p className="mt-5 font-mono text-xs uppercase text-primary">Workspace setup</p>
+          <p className="mt-5 text-xs font-semibold uppercase text-primary">Workspace setup</p>
           <h1 className="mt-3 text-2xl font-medium tracking-normal text-foreground sm:text-3xl">Create your first ShadeOps workspace.</h1>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             This wallet will become the workspace owner. After that you can add treasury settings, contacts, and invite more operator wallets.
@@ -762,7 +762,7 @@ function TreasuryEducation(): ReactElement {
     <section className="rounded-md border border-accent/30 bg-accent/10 p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
-          <p className="font-mono text-xs uppercase text-accent">Treasury requirement</p>
+          <p className="text-xs font-semibold uppercase text-accent">Treasury requirement</p>
           <h3 className="mt-2 text-base font-medium text-foreground">Use an existing Solana treasury address.</h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             ShadeOps only stores the public treasury address for balance checks, policy review, and payout planning. It does not create wallets, custody funds, hold private keys, or treat your connected operator wallet as the treasury.
@@ -781,7 +781,7 @@ function TreasuryEducation(): ReactElement {
 function TreasurySource({ label, value }: Readonly<{ label: string; value: string }>): ReactElement {
   return (
     <div className="rounded-md border border-border/70 bg-background/70 px-3 py-2">
-      <p className="font-mono uppercase text-muted-foreground">{label}</p>
+      <p className="font-semibold uppercase text-muted-foreground">{label}</p>
       <p className="mt-1 text-foreground">{value}</p>
     </div>
   );

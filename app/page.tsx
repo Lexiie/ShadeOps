@@ -69,7 +69,7 @@ export default function HomePage(): ReactElement {
       <section className="relative overflow-hidden border-b border-border bg-background">
         <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-7xl items-center gap-8 px-4 pb-10 pt-8 sm:px-6 lg:grid-cols-[0.74fr_1.26fr] lg:px-8">
           <div className="max-w-2xl">
-            <p className="font-mono text-xs uppercase tracking-normal text-primary">Private payout operations for Solana teams</p>
+            <p className="text-xs font-semibold uppercase tracking-normal text-primary">Private payout operations for Solana teams</p>
             <h1 className="mt-4 font-hero text-5xl font-normal leading-none tracking-normal text-foreground sm:text-6xl lg:text-7xl">
               Agent-assisted payouts with human signing authority.
             </h1>
@@ -116,7 +116,7 @@ export default function HomePage(): ReactElement {
 
       <section id="use-cases" className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
         <div className="max-w-xl">
-          <p className="font-mono text-xs uppercase tracking-normal text-primary">Why it exists</p>
+          <p className="text-xs font-semibold uppercase tracking-normal text-primary">Why it exists</p>
           <h2 className="mt-3 text-3xl font-medium tracking-normal text-foreground">Public payouts expose the operating graph.</h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
             Transparent transfers can reveal who works with the team, how often they are paid, which vendors matter, and when treasury cadence changes. ShadeOps keeps payout preparation inspectable without broadcasting every relationship.
@@ -133,7 +133,7 @@ export default function HomePage(): ReactElement {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
-              <p className="font-mono text-xs uppercase tracking-normal text-primary">Controlled agentic workflow</p>
+              <p className="text-xs font-semibold uppercase tracking-normal text-primary">Controlled agentic workflow</p>
               <h2 className="mt-3 text-3xl font-medium tracking-normal text-foreground">A payout pipeline with checkpoints.</h2>
             </div>
             <p className="max-w-md text-sm leading-6 text-muted-foreground">The agent can parse and explain. Deterministic code resolves data, checks policy, prepares execution, and blocks unsafe plans before signing.</p>
@@ -145,7 +145,7 @@ export default function HomePage(): ReactElement {
       <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8">
         <VisualImage src="/shadeops-control-plane.png" width={1200} height={760} alt="ShadeOps control plane showing workspace data, policy engine, privacy route, admin signer, and proof boundary." />
         <div className="flex flex-col justify-center">
-          <p className="font-mono text-xs uppercase tracking-normal text-primary">Security boundary</p>
+          <p className="text-xs font-semibold uppercase tracking-normal text-primary">Security boundary</p>
           <h2 className="mt-3 text-3xl font-medium tracking-normal text-foreground">The agent is present, but boxed in.</h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
             ShadeOps is intentionally boring where money moves. It cannot invent wallets, cannot sign, cannot fake execution references, and cannot override policy results.
@@ -263,7 +263,7 @@ function FAQSection(): ReactElement {
     <section className="border-t border-border bg-background">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.72fr_1.28fr] lg:px-8">
         <div>
-          <p className="font-mono text-xs uppercase tracking-normal text-primary">FAQ</p>
+          <p className="text-xs font-semibold uppercase tracking-normal text-primary">FAQ</p>
           <h2 className="mt-3 text-3xl font-medium tracking-normal text-foreground">Operational questions, answered plainly.</h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
             ShadeOps is designed around explicit treasury ownership, wallet signing, and auditable private payout preparation.
@@ -274,7 +274,7 @@ function FAQSection(): ReactElement {
             <details key={faq.question} className="group p-4 open:bg-card/60">
               <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-foreground focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
                 {faq.question}
-                <span className="font-mono text-primary transition-transform group-open:rotate-45" aria-hidden>+</span>
+                <span className="text-lg leading-none text-primary transition-transform group-open:rotate-45" aria-hidden>+</span>
               </summary>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{faq.answer}</p>
             </details>
@@ -290,7 +290,7 @@ function LandingFooter(): ReactElement {
     <footer className="border-t border-border bg-card/35 px-4 py-8 text-sm text-muted-foreground sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div>
-          <Link href="/" className="font-mono text-sm uppercase tracking-normal text-primary focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">ShadeOps Agent</Link>
+          <Link href="/" className="text-sm font-semibold uppercase tracking-normal text-primary focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">ShadeOps Agent</Link>
           <p className="mt-2 max-w-xl leading-6">Agent-assisted private payout operations for Solana teams. Drafted by the agent, checked by policy, signed by admins.</p>
         </div>
         <nav className="flex flex-wrap items-center gap-2" aria-label="Footer navigation">
