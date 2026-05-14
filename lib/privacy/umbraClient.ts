@@ -244,12 +244,6 @@ export function getTokenDecimals(symbol: string): number {
  * Resolves the Umbra network from public runtime configuration.
  */
 export function getUmbraNetwork(): "mainnet" | "devnet" | "localnet" {
-  const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK;
-
-  if (network === "mainnet" || network === "localnet") {
-    return network;
-  }
-
   return "devnet";
 }
 

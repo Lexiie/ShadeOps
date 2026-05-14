@@ -462,7 +462,6 @@ export function OperatorDashboard(): ReactElement {
               <Field label="Network" id="treasury-network">
                 <select id="treasury-network" value={treasuryDraft.network} onChange={(event) => setTreasuryDraft({ ...treasuryDraft, network: event.target.value as TreasuryConfig["network"] })} className="control">
                   <option value="devnet">Devnet</option>
-                  <option value="mainnet-beta">Mainnet beta</option>
                 </select>
               </Field>
               <Field label="Source" id="treasury-source">

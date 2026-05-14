@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const treasuryNetworkSchema = z.enum(["devnet", "mainnet-beta"]);
+export const treasuryNetworkSchema = z.literal("devnet");
 export const treasurySourceSchema = z.enum(["manual", "squads", "realms", "program"]);
 
 export const treasuryConfigSchema = z.object({

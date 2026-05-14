@@ -1,5 +1,6 @@
 import { Connection } from "@solana/web3.js";
 import type { ExecutionPlan, ExecutionReference } from "@/lib/schemas/proof";
+import { resolveDevnetRpcEndpoint } from "@/lib/solanaRpc";
 
 type SignatureStatus = {
   err: unknown;
@@ -68,13 +69,7 @@ function validateDecodedTransactionHints(reference: ExecutionReference, status: 
 }
 
 function createRpcStatusFetcher(): SignatureVerificationFetcher {
-  const rpcUrl = process.env.SOLANA_RPC_URL;
-
-  if (!rpcUrl) {
-    throw new Error("SOLANA_RPC_URL is required to verify execution references before proof creation.");
-  }
-
-  const connection = new Connection(rpcUrl, "confirmed");
+  const connection = new Connection(resolveDevnetRpcEndpoint(process.env.SOLANA_RPC_URL), "confirmed");
 
   return async (signature: string) => {
     const [statusResponse, transaction] = await Promise.all([
