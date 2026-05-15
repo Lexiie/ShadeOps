@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactElement, ReactNode } from "react";
 import { JetBrains_Mono, Lilita_One, Outfit } from "next/font/google";
 import "@solana/wallet-adapter-react-ui/styles.css";
@@ -13,6 +13,11 @@ const jetBrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mon
 export const metadata: Metadata = {
   title: "ShadeOps Agent",
   description: "Agentic private payout operator for Solana teams."
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1
 };
 
 /**

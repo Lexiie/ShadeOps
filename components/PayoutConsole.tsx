@@ -2,7 +2,7 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { AlertTriangle, Bot, CheckCircle2, ChevronDown, Clipboard, FileCheck2, Lightbulb, ListChecks, LockKeyhole, Search, Route, ShieldCheck, WalletCards, Wrench } from "lucide-react";
+import { AlertTriangle, Bot, CheckCircle2, ChevronDown, Clipboard, FileCheck2, Lightbulb, ListChecks, LockKeyhole, Search, Route, SendHorizontal, ShieldCheck, WalletCards, Wrench } from "lucide-react";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -37,6 +37,11 @@ type WorkspaceMembership = {
 
 const DEFAULT_INTENT = "Pay Alice 50 USDC privately for the bounty round.";
 const WORKSPACE_ID_HEADER = "x-shadeops-workspace-id";
+const SUGGESTED_INTENTS = [
+  "Pay Alice 50 USDC privately for the bounty round.",
+  "Pay Maya 0.2 SOL privately for vendor ops.",
+  "Check whether Bob can receive 75 USDC."
+];
 
 /**
  * Renders the complete private payout planning, approval, and proof package workflow.
@@ -232,9 +237,9 @@ export function PayoutConsole({ initialTreasuryConfig = null }: Readonly<{ initi
   const isBlocked = planResponse?.policyResult.status === "blocked";
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,hsl(var(--muted))_0,transparent_36rem),hsl(var(--background))] px-4 pb-5 text-foreground sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,hsl(var(--muted))_0,transparent_36rem),hsl(var(--background))] px-4 pb-5 text-foreground sm:px-6 lg:px-8">
       <div className="sticky top-0 z-50 -mx-4 mb-5 border-b border-primary/30 bg-primary px-4 py-2 text-primary-foreground shadow-[0_12px_36px_rgba(0,0,0,0.22)] sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div className="mx-auto grid h-12 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
+        <div className="mx-auto grid h-12 max-w-7xl grid-cols-[auto_1fr] items-center gap-2 sm:gap-3 md:grid-cols-[auto_1fr_auto]">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <a className="inline-flex min-w-0 whitespace-nowrap focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-primary-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-primary" href="/" aria-label="ShadeOps home">
               <ShadeOpsLogo hideWordmarkOnSmall />
@@ -246,7 +251,7 @@ export function PayoutConsole({ initialTreasuryConfig = null }: Readonly<{ initi
             <span className="truncate text-muted-foreground">Operator console, policy checks, private execution</span>
           </div>
 
-          <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3 md:col-start-3">
             <details className="relative">
               <summary className="inline-flex h-10 cursor-pointer list-none items-center justify-center gap-1.5 rounded-md border border-primary-foreground/35 bg-primary-foreground/12 px-3 text-xs font-semibold text-primary-foreground hover:bg-primary-foreground/18 focus-visible:ring-2 focus-visible:ring-primary-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-primary [&::-webkit-details-marker]:hidden">
                 Nav
@@ -261,7 +266,9 @@ export function PayoutConsole({ initialTreasuryConfig = null }: Readonly<{ initi
                 </Link>
               </div>
             </details>
-            <StatusPill tone="nav" label="Devnet" />
+            <span className="hidden min-w-0 sm:block">
+              <StatusPill tone="nav" label="Devnet" />
+            </span>
             <span className="hidden sm:block">
               <WalletMultiButton className="!h-10 !w-36 !min-w-36 !justify-center !rounded-md !bg-background !px-3 !text-xs !font-semibold !leading-none !text-foreground hover:!bg-background/92" />
             </span>
@@ -270,118 +277,44 @@ export function PayoutConsole({ initialTreasuryConfig = null }: Readonly<{ initi
       </div>
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5">
         <header className="flex flex-col gap-4 border-b border-border pb-5 pt-1">
-          <div className="max-w-3xl">
-            <h1 className="mt-2 text-3xl font-medium tracking-normal text-foreground sm:text-4xl">Private payout operator console</h1>
+          <div className="min-w-0 max-w-3xl">
+            <h1 className="mt-2 max-w-full text-balance text-2xl font-medium leading-tight tracking-normal text-foreground sm:text-4xl">Private payout operator console</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
               Agent plans. Admin signs. Privacy protocol executes. Proof package records.
             </p>
           </div>
         </header>
 
-        <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-          <Panel title="Payout intent" icon={<WalletCards aria-hidden className="h-4 w-4" />}>
-            <div className="space-y-4">
-              <label className="block text-sm font-medium" htmlFor="intent">Intent</label>
-              <textarea
-                id="intent"
-                value={intent}
-                onChange={(event) => setIntent(event.target.value)}
-                className="min-h-36 w-full resize-y rounded-md border border-input bg-background px-3 py-3 text-sm leading-6 shadow-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              />
-              <label className="block text-sm font-medium" htmlFor="treasury">Treasury wallet</label>
-              <input
-                id="treasury"
-                value={treasuryWallet}
-                onChange={(event) => setTreasuryWallet(event.target.value)}
-                autoComplete="off"
-                placeholder={isLoadingTreasury ? "Checking treasury settings..." : "Configure treasury in dashboard"}
-                className="h-11 w-full rounded-md border border-input bg-background px-3 font-mono text-xs shadow-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-sm"
-              />
-              {treasuryConfig ? (
-                <p className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-xs leading-5 text-primary">
-                  Using {treasuryConfig.label} from dashboard settings on {treasuryConfig.network}.
-                </p>
-              ) : (
-                <p className="rounded-md border border-accent/40 bg-accent/10 px-3 py-2 text-xs leading-5 text-accent">
-                  Treasury is not configured. Open the dashboard, connect wallet, and save treasury settings before planning a real payout.
-                </p>
-              )}
-              <button
-                type="button"
-                onClick={handleCreatePlan}
-                disabled={isPlanning || !treasuryWallet}
-                className="inline-flex min-h-10 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isPlanning ? "Planning payout..." : "Create deterministic plan"}
-              </button>
-              <p className="rounded-md border border-border bg-muted px-3 py-2 text-xs leading-5 text-muted-foreground">
-                No transaction is prepared until policy completes. No funds move without admin wallet approval and signature.
-              </p>
-            </div>
-          </Panel>
+        <section className="grid min-w-0 gap-5 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+          <ChatWorkspace
+            intent={intent}
+            treasuryWallet={treasuryWallet}
+            treasuryConfig={treasuryConfig}
+            isLoadingTreasury={isLoadingTreasury}
+            isPlanning={isPlanning}
+            isApproving={isApproving}
+            planResponse={planResponse}
+            proofPackage={proofPackage}
+            error={error}
+            onIntentChange={setIntent}
+            onTreasuryWalletChange={setTreasuryWallet}
+            onCreatePlan={handleCreatePlan}
+          />
 
-          <div className="space-y-5">
-            {error ? <Alert message={error} /> : null}
+          <div className="min-w-0 space-y-5 lg:sticky lg:top-24">
             {isPlanning ? <SkeletonPlan /> : null}
-            <AgentActivityTimeline isPlanning={isPlanning} isApproving={isApproving} planResponse={planResponse} proofPackage={proofPackage} treasuryConfigured={Boolean(treasuryConfig)} />
-            {planResponse ? <PlanReview planResponse={planResponse} /> : <EmptyPlan />}
+            {planResponse ? (
+              <>
+                <AgentPlanPanel planResponse={planResponse} />
+                <PlanReview planResponse={planResponse} />
+                <section className="grid gap-5 xl:grid-cols-[1fr_0.85fr]">
+                  <ExecutionApprovalPanel planResponse={planResponse} isBlocked={isBlocked} isApproving={isApproving} onApprovePlan={handleApprovePlan} />
+                  <ProofPackagePanel proofPackage={proofPackage} routeMode={planResponse.routeDecision.mode} onCopyProof={handleCopyProof} />
+                </section>
+              </>
+            ) : <EmptyPlan />}
           </div>
         </section>
-
-        {planResponse ? (
-          <section className="grid gap-5 lg:grid-cols-[1fr_0.85fr]">
-            <AgentPlanPanel planResponse={planResponse} />
-
-            <Panel title="Execution approval" icon={<ShieldCheck aria-hidden className="h-4 w-4" />}>
-              <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <Metric label="Recipient" value={planResponse.parsedOperation.recipientLabel} />
-                  <Metric label="Amount" value={`${planResponse.parsedOperation.amount} ${planResponse.parsedOperation.tokenSymbol}`} />
-                  <Metric label="Route" value={planResponse.routeDecision.mode.toUpperCase()} />
-                </div>
-                <ol className="space-y-2 text-sm text-muted-foreground">
-                  {planResponse.executionPlan.steps.map((step) => (
-                    <li key={step} className="flex gap-2 rounded-md border border-border bg-background px-3 py-2">
-                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-                {planResponse.routeDecision.mode === "umbra" ? <UmbraClaimNotice /> : null}
-                <button
-                  type="button"
-                  onClick={handleApprovePlan}
-                  disabled={isBlocked || isApproving}
-                  className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground ring-offset-background hover:bg-accent/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <LockKeyhole aria-hidden className="h-4 w-4" />
-                  {isApproving ? "Recording approval..." : "Approve plan and create proof"}
-                </button>
-              </div>
-            </Panel>
-
-            <Panel title="Proof package" icon={<FileCheck2 aria-hidden className="h-4 w-4" />}>
-              {proofPackage ? (
-                <div className="space-y-3">
-                  <Metric label="Operation" value={proofPackage.operationId} mono />
-                  <Metric label="Decision hash" value={proofPackage.decisionHash} mono />
-                  <Metric label="Approved" value={new Date(proofPackage.adminApprovalTimestamp).toLocaleString()} />
-                  <button
-                    type="button"
-                    onClick={handleCopyProof}
-                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-secondary px-4 text-sm font-medium text-secondary-foreground ring-offset-background hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  >
-                    <Clipboard aria-hidden className="h-4 w-4" />
-                    Copy proof JSON
-                  </button>
-                  {planResponse.routeDecision.mode === "umbra" ? <UmbraClaimNotice /> : null}
-                </div>
-              ) : (
-                <p className="text-sm leading-6 text-muted-foreground">Proof appears after explicit admin approval. Blocked policy results cannot generate proof packages.</p>
-              )}
-            </Panel>
-          </section>
-        ) : null}
 
         {planResponse?.routeDecision.mode === "umbra" ? (
           <UmbraClaimPanel
@@ -436,42 +369,198 @@ function workspaceHeaders(membership: WorkspaceMembership | null): Record<string
   return membership ? { [WORKSPACE_ID_HEADER]: membership.workspaceId } : {};
 }
 
-function AgentActivityTimeline({
+function ChatWorkspace({
+  intent,
+  treasuryWallet,
+  treasuryConfig,
+  isLoadingTreasury,
   isPlanning,
   isApproving,
   planResponse,
   proofPackage,
-  treasuryConfigured
+  error,
+  onIntentChange,
+  onTreasuryWalletChange,
+  onCreatePlan
 }: Readonly<{
+  intent: string;
+  treasuryWallet: string;
+  treasuryConfig: TreasuryConfig | null;
+  isLoadingTreasury: boolean;
   isPlanning: boolean;
   isApproving: boolean;
   planResponse: PlanResponse | null;
   proofPackage: ProofPackage | null;
-  treasuryConfigured: boolean;
+  error: string | null;
+  onIntentChange: (value: string) => void;
+  onTreasuryWalletChange: (value: string) => void;
+  onCreatePlan: () => Promise<void>;
 }>): ReactElement {
-  const steps = [
-    { label: "Read intent", detail: "Waiting for an operator payout request.", state: "done" },
-    { label: "Load treasury", detail: treasuryConfigured ? "Dashboard treasury is available." : "Treasury settings are required.", state: treasuryConfigured ? "done" : "waiting" },
-    { label: "Parse and resolve", detail: planResponse ? "Recipient and amount were normalized." : "Agent has not built a plan yet.", state: planResponse ? "done" : isPlanning ? "active" : "waiting" },
-    { label: "Policy decision", detail: planResponse ? formatPolicyStatus(planResponse.policyResult.status) : "Deterministic policy has not run.", state: planResponse ? statusToTimelineState(planResponse.policyResult.status) : "waiting" },
-    { label: "Route selection", detail: planResponse ? `${planResponse.routeDecision.mode.toUpperCase()} selected by route rules.` : "Route is selected after policy context exists.", state: planResponse ? "done" : "waiting" },
-    { label: "Admin signature", detail: isApproving ? "Wallet approval is in progress." : planResponse?.policyResult.status === "blocked" ? "Blocked plans cannot be signed." : planResponse ? "Ready for admin review." : "No plan is ready.", state: isApproving ? "active" : planResponse?.policyResult.status === "blocked" ? "blocked" : planResponse ? "active" : "waiting" },
-    { label: "Proof record", detail: proofPackage ? "Execution references were recorded." : "Proof appears after real protocol execution.", state: proofPackage ? "done" : "waiting" }
-  ] as const;
+  return (
+    <section className="fade-in min-w-0 overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)]">
+      <div className="border-b border-border px-3 py-3 sm:px-5">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-secondary text-primary"><Bot aria-hidden className="h-4 w-4" /></span>
+          <div className="min-w-0">
+            <h2 className="text-sm font-medium text-foreground">ShadeOps agent</h2>
+            <p className="line-clamp-2 text-xs text-muted-foreground">Chat-driven plan drafting. Policy and signing stay deterministic.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="min-h-[26rem] space-y-3 bg-background/45 px-3 py-4 sm:min-h-[34rem] sm:px-5">
+        <ChatBubble role="agent">
+          Tell me who to pay, how much, which token, and why. I will turn it into a reviewable payout artifact before anything can be signed.
+        </ChatBubble>
+        <ChatBubble role="user">{intent}</ChatBubble>
+        <ChatBubble role="agent">
+          {treasuryConfig ? `I found ${treasuryConfig.label} on ${treasuryConfig.network}. I will use that treasury for balance and policy checks.` : "I still need a devnet treasury from the dashboard before I can produce a signable plan."}
+        </ChatBubble>
+        {isPlanning ? (
+          <ChatBubble role="agent">
+            Parsing intent, resolving recipient, checking treasury balance, evaluating policy, and selecting a privacy route.
+          </ChatBubble>
+        ) : null}
+        {planResponse ? <PlanChatSummary planResponse={planResponse} /> : null}
+        {isApproving ? <ChatBubble role="agent">Waiting for the admin wallet path to finish and return execution references.</ChatBubble> : null}
+        {proofPackage ? <ChatBubble role="agent">Proof package recorded for operation {proofPackage.operationId}. The decision hash is ready in the artifact panel.</ChatBubble> : null}
+        {error ? <ChatBubble role="agent" tone="warning">{error}</ChatBubble> : null}
+      </div>
+
+      <form
+        className="border-t border-border bg-card px-3 py-4 sm:px-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void onCreatePlan();
+        }}
+      >
+        <div className="mb-3 flex max-w-full gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
+          {SUGGESTED_INTENTS.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              onClick={() => onIntentChange(suggestion)}
+              className="inline-flex min-h-9 max-w-[82vw] shrink-0 items-center truncate rounded-full border border-border bg-background px-3 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:max-w-none"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+        <label className="sr-only" htmlFor="intent">Payout message</label>
+        <div className="grid min-w-0 gap-2 sm:grid-cols-[1fr_auto]">
+          <textarea
+            id="intent"
+            value={intent}
+            onChange={(event) => onIntentChange(event.target.value)}
+            rows={3}
+            className="min-h-24 min-w-0 resize-y rounded-md border border-input bg-background px-3 py-3 text-sm leading-6 shadow-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            placeholder="Pay Alice 50 USDC privately for the bounty round."
+          />
+          <button
+            type="submit"
+            disabled={isPlanning || !treasuryWallet}
+            className="inline-flex min-h-12 w-full shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-12"
+            aria-label={isPlanning ? "Planning payout" : "Send payout intent"}
+          >
+            <SendHorizontal aria-hidden className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="mt-3 grid min-w-0 gap-2 rounded-md border border-border bg-background px-3 py-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Treasury context</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">{treasuryConfig ? `${treasuryConfig.label} from dashboard settings` : "Configure a devnet treasury before planning."}</p>
+          </div>
+          <input
+            value={treasuryWallet}
+            onChange={(event) => onTreasuryWalletChange(event.target.value)}
+            autoComplete="off"
+            aria-label="Treasury wallet"
+            placeholder={isLoadingTreasury ? "Checking treasury settings..." : "Treasury wallet"}
+            className="h-10 min-w-0 rounded-md border border-input bg-card px-3 font-mono text-xs shadow-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-80"
+          />
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function ChatBubble({ role, tone = "default", children }: Readonly<{ role: "agent" | "user"; tone?: "default" | "warning"; children: ReactNode }>): ReactElement {
+  const isUser = role === "user";
 
   return (
-    <Panel title="Agent activity" icon={<Bot aria-hidden className="h-4 w-4" />}>
-      <ol className="space-y-2">
-        {steps.map((step) => (
-          <li key={step.label} className="grid grid-cols-[auto_1fr] gap-3 rounded-md border border-border bg-background px-3 py-2">
-            <span className={cn("mt-1.5 h-2.5 w-2.5 rounded-full", timelineDotClass(step.state))} aria-hidden />
-            <span>
-              <span className="block text-sm font-medium text-foreground">{step.label}</span>
-              <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{step.detail}</span>
-            </span>
-          </li>
-        ))}
-      </ol>
+    <div className={cn("flex min-w-0", isUser && "justify-end")}>
+      <div className={cn("max-w-[84%] overflow-hidden break-words rounded-lg border px-3 py-2 text-sm leading-6 sm:max-w-[88%]", isUser ? "border-primary/30 bg-primary text-primary-foreground" : tone === "warning" ? "border-accent/40 bg-accent/10 text-accent" : "border-border bg-card text-muted-foreground")}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function PlanChatSummary({ planResponse }: Readonly<{ planResponse: PlanResponse }>): ReactElement {
+  const policyText = formatPolicyStatus(planResponse.policyResult.status);
+
+  return (
+    <ChatBubble role="agent">
+      <span className="block text-foreground">I prepared a payout artifact.</span>
+      <span className="mt-1 block">Recipient: {planResponse.parsedOperation.recipientLabel}. Amount: {planResponse.parsedOperation.amount} {planResponse.parsedOperation.tokenSymbol}. Route: {planResponse.routeDecision.mode.toUpperCase()}.</span>
+      <span className="mt-1 block">{policyText}</span>
+    </ChatBubble>
+  );
+}
+
+function ExecutionApprovalPanel({ planResponse, isBlocked, isApproving, onApprovePlan }: Readonly<{ planResponse: PlanResponse; isBlocked: boolean; isApproving: boolean; onApprovePlan: () => Promise<void> }>): ReactElement {
+  return (
+    <Panel title="Execution approval" icon={<ShieldCheck aria-hidden className="h-4 w-4" />}>
+      <div className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+          <Metric label="Recipient" value={planResponse.parsedOperation.recipientLabel} />
+          <Metric label="Amount" value={`${planResponse.parsedOperation.amount} ${planResponse.parsedOperation.tokenSymbol}`} />
+          <Metric label="Route" value={planResponse.routeDecision.mode.toUpperCase()} />
+        </div>
+        <ol className="space-y-2 text-sm text-muted-foreground">
+          {planResponse.executionPlan.steps.map((step) => (
+            <li key={step} className="flex gap-2 rounded-md border border-border bg-background px-3 py-2">
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+              <span>{step}</span>
+            </li>
+          ))}
+        </ol>
+        {planResponse.routeDecision.mode === "umbra" ? <UmbraClaimNotice /> : null}
+        <button
+          type="button"
+          onClick={() => void onApprovePlan()}
+          disabled={isBlocked || isApproving}
+          className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground ring-offset-background hover:bg-accent/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <LockKeyhole aria-hidden className="h-4 w-4" />
+          {isApproving ? "Recording approval..." : "Approve plan and create proof"}
+        </button>
+      </div>
+    </Panel>
+  );
+}
+
+function ProofPackagePanel({ proofPackage, routeMode, onCopyProof }: Readonly<{ proofPackage: ProofPackage | null; routeMode: PrivacyRouteDecision["mode"]; onCopyProof: () => Promise<void> }>): ReactElement {
+  return (
+    <Panel title="Proof package" icon={<FileCheck2 aria-hidden className="h-4 w-4" />}>
+      {proofPackage ? (
+        <div className="space-y-3">
+          <Metric label="Operation" value={proofPackage.operationId} mono />
+          <Metric label="Decision hash" value={proofPackage.decisionHash} mono />
+          <Metric label="Approved" value={new Date(proofPackage.adminApprovalTimestamp).toLocaleString()} />
+          <button
+            type="button"
+            onClick={() => void onCopyProof()}
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-secondary px-4 text-sm font-medium text-secondary-foreground ring-offset-background hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <Clipboard aria-hidden className="h-4 w-4" />
+            Copy proof JSON
+          </button>
+          {routeMode === "umbra" ? <UmbraClaimNotice /> : null}
+        </div>
+      ) : (
+        <p className="text-sm leading-6 text-muted-foreground">Proof appears after explicit admin approval. Blocked policy results cannot generate proof packages.</p>
+      )}
     </Panel>
   );
 }
@@ -555,27 +644,6 @@ function formatPolicyStatus(status: PolicyResult["status"]): string {
   }
 
   return "Policy requires manual review before signing.";
-}
-
-function statusToTimelineState(status: PolicyResult["status"]): "done" | "active" | "blocked" {
-  if (status === "blocked") {
-    return "blocked";
-  }
-
-  if (status === "needs_review") {
-    return "active";
-  }
-
-  return "done";
-}
-
-function timelineDotClass(state: "done" | "active" | "blocked" | "waiting"): string {
-  return {
-    active: "bg-accent ring-4 ring-accent/15",
-    blocked: "bg-destructive ring-4 ring-destructive/15",
-    done: "bg-primary",
-    waiting: "bg-muted-foreground/35"
-  }[state];
 }
 
 /**
