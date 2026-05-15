@@ -2,7 +2,7 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { AlertTriangle, CheckCircle2, ChevronDown, Clipboard, FileCheck2, Lightbulb, LockKeyhole, Search, Route, ShieldCheck, WalletCards } from "lucide-react";
+import { AlertTriangle, Bot, CheckCircle2, ChevronDown, Clipboard, FileCheck2, Lightbulb, ListChecks, LockKeyhole, Search, Route, ShieldCheck, WalletCards, Wrench } from "lucide-react";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -323,12 +323,15 @@ export function PayoutConsole({ initialTreasuryConfig = null }: Readonly<{ initi
           <div className="space-y-5">
             {error ? <Alert message={error} /> : null}
             {isPlanning ? <SkeletonPlan /> : null}
+            <AgentActivityTimeline isPlanning={isPlanning} isApproving={isApproving} planResponse={planResponse} proofPackage={proofPackage} treasuryConfigured={Boolean(treasuryConfig)} />
             {planResponse ? <PlanReview planResponse={planResponse} /> : <EmptyPlan />}
           </div>
         </section>
 
         {planResponse ? (
           <section className="grid gap-5 lg:grid-cols-[1fr_0.85fr]">
+            <AgentPlanPanel planResponse={planResponse} />
+
             <Panel title="Execution approval" icon={<ShieldCheck aria-hidden className="h-4 w-4" />}>
               <div className="space-y-4">
                 <div className="grid gap-3 sm:grid-cols-3">
@@ -433,6 +436,86 @@ function workspaceHeaders(membership: WorkspaceMembership | null): Record<string
   return membership ? { [WORKSPACE_ID_HEADER]: membership.workspaceId } : {};
 }
 
+function AgentActivityTimeline({
+  isPlanning,
+  isApproving,
+  planResponse,
+  proofPackage,
+  treasuryConfigured
+}: Readonly<{
+  isPlanning: boolean;
+  isApproving: boolean;
+  planResponse: PlanResponse | null;
+  proofPackage: ProofPackage | null;
+  treasuryConfigured: boolean;
+}>): ReactElement {
+  const steps = [
+    { label: "Read intent", detail: "Waiting for an operator payout request.", state: "done" },
+    { label: "Load treasury", detail: treasuryConfigured ? "Dashboard treasury is available." : "Treasury settings are required.", state: treasuryConfigured ? "done" : "waiting" },
+    { label: "Parse and resolve", detail: planResponse ? "Recipient and amount were normalized." : "Agent has not built a plan yet.", state: planResponse ? "done" : isPlanning ? "active" : "waiting" },
+    { label: "Policy decision", detail: planResponse ? formatPolicyStatus(planResponse.policyResult.status) : "Deterministic policy has not run.", state: planResponse ? statusToTimelineState(planResponse.policyResult.status) : "waiting" },
+    { label: "Route selection", detail: planResponse ? `${planResponse.routeDecision.mode.toUpperCase()} selected by route rules.` : "Route is selected after policy context exists.", state: planResponse ? "done" : "waiting" },
+    { label: "Admin signature", detail: isApproving ? "Wallet approval is in progress." : planResponse?.policyResult.status === "blocked" ? "Blocked plans cannot be signed." : planResponse ? "Ready for admin review." : "No plan is ready.", state: isApproving ? "active" : planResponse?.policyResult.status === "blocked" ? "blocked" : planResponse ? "active" : "waiting" },
+    { label: "Proof record", detail: proofPackage ? "Execution references were recorded." : "Proof appears after real protocol execution.", state: proofPackage ? "done" : "waiting" }
+  ] as const;
+
+  return (
+    <Panel title="Agent activity" icon={<Bot aria-hidden className="h-4 w-4" />}>
+      <ol className="space-y-2">
+        {steps.map((step) => (
+          <li key={step.label} className="grid grid-cols-[auto_1fr] gap-3 rounded-md border border-border bg-background px-3 py-2">
+            <span className={cn("mt-1.5 h-2.5 w-2.5 rounded-full", timelineDotClass(step.state))} aria-hidden />
+            <span>
+              <span className="block text-sm font-medium text-foreground">{step.label}</span>
+              <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{step.detail}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </Panel>
+  );
+}
+
+function AgentPlanPanel({ planResponse }: Readonly<{ planResponse: PlanResponse }>): ReactElement {
+  const operation = planResponse.parsedOperation;
+  const route = planResponse.routeDecision.mode.toUpperCase();
+  const canExecute = planResponse.policyResult.status !== "blocked";
+
+  return (
+    <section className="fade-in rounded-lg border border-primary/30 bg-primary/10 p-4 text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:p-5 lg:col-span-2">
+      <div className="mb-4 flex items-center gap-2 border-b border-primary/25 pb-3">
+        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-primary"><ListChecks aria-hidden className="h-4 w-4" /></span>
+        <h2 className="text-sm font-medium uppercase tracking-normal text-primary">Agent proposed plan</h2>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[1fr_0.95fr]">
+        <div>
+          <p className="text-sm leading-6 text-foreground">
+            Prepare a private {operation.amount} {operation.tokenSymbol} payout to {operation.recipientLabel} using {route}. The agent has drafted the plan; policy remains the authority and admin wallet approval is still required.
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <StatusPill tone={canExecute ? "pass" : "blocked"} label={canExecute ? "signable" : "blocked"} />
+            <StatusPill tone="review" label="admin signs" />
+            <StatusPill tone="pass" label="proof after execution" />
+          </div>
+        </div>
+        <div className="rounded-md border border-primary/25 bg-background px-3 py-3">
+          <p className="text-xs font-semibold uppercase text-muted-foreground">Before funds move</p>
+          <ul className="mt-2 space-y-2 text-sm leading-5 text-muted-foreground">
+            {[
+              "Recipient resolution and treasury context are visible for review.",
+              "Policy result decides whether execution can continue.",
+              "The connected admin wallet signs client-side only.",
+              "Proof requires real Solana RPC-verifiable execution signatures."
+            ].map((item) => (
+              <li key={item} className="flex gap-2"><CheckCircle2 aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />{item}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /**
  * Renders a reusable console panel with a compact heading.
  */
@@ -460,6 +543,39 @@ function StatusPill({ label, tone, fixed = false }: Readonly<{ label: string; to
   }[tone];
 
   return <span className={cn("inline-flex min-h-8 items-center justify-center rounded-md border px-2.5 text-xs font-semibold", fixed && "h-10 w-36", toneClass)}>{label}</span>;
+}
+
+function formatPolicyStatus(status: PolicyResult["status"]): string {
+  if (status === "pass") {
+    return "Policy passed. Execution can continue after admin review.";
+  }
+
+  if (status === "blocked") {
+    return "Policy blocked this plan before signing.";
+  }
+
+  return "Policy requires manual review before signing.";
+}
+
+function statusToTimelineState(status: PolicyResult["status"]): "done" | "active" | "blocked" {
+  if (status === "blocked") {
+    return "blocked";
+  }
+
+  if (status === "needs_review") {
+    return "active";
+  }
+
+  return "done";
+}
+
+function timelineDotClass(state: "done" | "active" | "blocked" | "waiting"): string {
+  return {
+    active: "bg-accent ring-4 ring-accent/15",
+    blocked: "bg-destructive ring-4 ring-destructive/15",
+    done: "bg-primary",
+    waiting: "bg-muted-foreground/35"
+  }[state];
 }
 
 /**
@@ -524,6 +640,7 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
       <Panel title="Policy result" icon={<AlertTriangle aria-hidden className="h-4 w-4" />}>
         <div className="space-y-3">
           <StatusPill tone={policyTone} label={planResponse.policyResult.status.replace("_", " ")} />
+          <PolicyNarrative policyResult={planResponse.policyResult} />
           <div className="space-y-2">
             {planResponse.policyResult.ruleResults.map((rule) => (
               <div key={rule.ruleId} className="rounded-md border border-border bg-background px-3 py-2 text-sm">
@@ -535,11 +652,13 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
               </div>
             ))}
           </div>
+          <FixActionList planResponse={planResponse} />
         </div>
       </Panel>
 
       <Panel title="Privacy route" icon={<Route aria-hidden className="h-4 w-4" />}>
         <div className="space-y-3">
+          <RouteRecommendation planResponse={planResponse} />
           <Metric label="Recommended mode" value={planResponse.routeDecision.mode.toUpperCase()} />
           <Metric label="Reason code" value={planResponse.routeDecision.reasonCode} mono />
           <p className="text-sm leading-6 text-muted-foreground">{planResponse.routeDecision.explanation}</p>
@@ -551,6 +670,98 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
       </Panel>
     </div>
   );
+}
+
+function PolicyNarrative({ policyResult }: Readonly<{ policyResult: PolicyResult }>): ReactElement {
+  const failedRules = policyResult.ruleResults.filter((rule) => rule.status !== "pass");
+  const passedRules = policyResult.ruleResults.filter((rule) => rule.status === "pass");
+
+  if (policyResult.status === "pass") {
+    return (
+      <div className="rounded-md border border-primary/30 bg-primary/10 px-3 py-3 text-sm leading-6 text-muted-foreground">
+        <p className="font-medium text-foreground">Policy passed because {passedRules.length} deterministic checks cleared.</p>
+        <p className="mt-1">The agent can recommend execution, but the admin wallet still signs client-side.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-md border border-accent/40 bg-accent/10 px-3 py-3 text-sm leading-6 text-muted-foreground">
+      <p className="font-medium text-foreground">Policy needs attention before execution.</p>
+      <ul className="mt-2 space-y-1">
+        {failedRules.map((rule) => (
+          <li key={rule.ruleId} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden />{rule.message}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RouteRecommendation({ planResponse }: Readonly<{ planResponse: PlanResponse }>): ReactElement {
+  const route = planResponse.routeDecision.mode.toUpperCase();
+  const fallback = planResponse.routeDecision.mode === "cloak" ? "Umbra if the recipient should claim privately later." : "Cloak when the payout can be direct shield-and-withdraw.";
+
+  return (
+    <div className="rounded-md border border-primary/30 bg-primary/10 px-3 py-3 text-sm leading-6 text-muted-foreground">
+      <p className="font-medium text-foreground">Recommended route: {route}</p>
+      <p className="mt-1">Reason: {planResponse.routeDecision.explanation}</p>
+      <p className="mt-1">Fallback: {fallback}</p>
+      {planResponse.routeDecision.tradeoffs.length > 0 ? (
+        <ul className="mt-2 space-y-1">
+          {planResponse.routeDecision.tradeoffs.map((tradeoff) => (
+            <li key={tradeoff} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />{tradeoff}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function FixActionList({ planResponse }: Readonly<{ planResponse: PlanResponse }>): ReactElement | null {
+  const actions = buildFixActions(planResponse);
+
+  if (actions.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-md border border-border bg-background px-3 py-3">
+      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+        <Wrench aria-hidden className="h-4 w-4 text-primary" />
+        Fix-this actions
+      </div>
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        {actions.map((action) => (
+          <Link key={action.href + action.label} href={action.href} className="inline-flex min-h-10 items-center justify-center rounded-md border border-border bg-secondary px-3 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            {action.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function buildFixActions(planResponse: PlanResponse): Array<{ label: string; href: string }> {
+  const actions: Array<{ label: string; href: string }> = [];
+  const ruleText = planResponse.policyResult.ruleResults.map((rule) => `${rule.ruleId} ${rule.message}`.toLowerCase()).join(" ");
+
+  if (ruleText.includes("recipient") || !planResponse.parsedOperation.recipientWallet) {
+    actions.push({ href: "/dashboard#contacts", label: "Review contacts" });
+  }
+
+  if (ruleText.includes("balance") || ruleText.includes("treasury")) {
+    actions.push({ href: "/dashboard#treasury", label: "Open treasury settings" });
+  }
+
+  if (ruleText.includes("token")) {
+    actions.push({ href: "/dashboard#contacts", label: "Check token permissions" });
+  }
+
+  if (planResponse.policyResult.status === "needs_review") {
+    actions.push({ href: "/dashboard#policy", label: "Review policy lanes" });
+  }
+
+  return actions.filter((action, index, all) => all.findIndex((candidate) => candidate.label === action.label) === index);
 }
 
 function UmbraClaimPanel({
