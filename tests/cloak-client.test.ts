@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
-import { executeCloakPayout, resolveCloakToken } from "@/lib/privacy/cloakClient";
+import { executeCloakPayout, resolveCloakToken, validateCloakCircuitWasm } from "@/lib/privacy/cloakClient";
 import type { PrivacyExecutionRequest } from "@/lib/privacy/types";
 
 const validRecipient = "11111111111111111111111111111111";
@@ -90,5 +90,24 @@ describe("executeCloakPayout", () => {
         }
       })
     ).rejects.toThrow(/recipient wallet is required/i);
+  });
+
+  it("accepts a Cloak circuit artifact with the WebAssembly magic header", async () => {
+    const fetchWasm = async () => new Response(new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
+
+    await expect(validateCloakCircuitWasm("https://circuits.example", fetchWasm as typeof fetch)).resolves.toBeUndefined();
+  });
+
+  it("reports a clear Cloak circuit configuration error when the artifact URL returns XML", async () => {
+    const fetchXml = async () =>
+      new Response("<?xml version=\"1.0\"?><Error><Code>AccessDenied</Code></Error>", {
+        status: 403,
+        statusText: "Forbidden",
+        headers: { "content-type": "application/xml" }
+      });
+
+    await expect(validateCloakCircuitWasm("https://circuits.example", fetchXml as typeof fetch)).rejects.toThrow(
+      /NEXT_PUBLIC_CLOAK_CIRCUITS_URL/i
+    );
   });
 });
