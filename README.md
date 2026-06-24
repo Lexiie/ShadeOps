@@ -240,7 +240,7 @@ NEXT_PUBLIC_SOLANA_RPC_WS_URL="wss://api.devnet.solana.com"
 NEXT_PUBLIC_UMBRA_INDEXER_API_ENDPOINT="https://indexer.umbraprivacy.com"
 NEXT_PUBLIC_UMBRA_RELAYER_API_ENDPOINT="https://replace-with-umbra-relayer.example"
 NEXT_PUBLIC_CLOAK_RELAY_URL="https://api.devnet.cloak.ag"
-NEXT_PUBLIC_CLOAK_CIRCUITS_URL="https://cloak-circuits.s3.us-east-1.amazonaws.com/circuits/0.1.0"
+NEXT_PUBLIC_CLOAK_CIRCUITS_URL="https://storage.googleapis.com/cloak-circuits/circuits/0.1.0"
 ```
 
 Cloak execution uses `@cloak.dev/sdk-devnet` with the connected wallet adapter, the devnet Cloak program, the devnet relay, Solana devnet RPC, and circuit artifacts at `NEXT_PUBLIC_CLOAK_CIRCUITS_URL`. The circuit base URL must expose `transaction_js/transaction.wasm` and `transaction_final.zkey`; ShadeOps checks the WASM header before execution so a blocked XML/HTML response fails with a configuration error instead of a raw browser `WebAssembly.compile()` error. Umbra execution uses `@umbra-privacy/sdk` and `@umbra-privacy/web-zk-prover` for receiver-claimable SPL UTXOs.

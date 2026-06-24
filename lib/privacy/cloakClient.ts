@@ -6,6 +6,7 @@ import type { PrivacyExecutionReference, PrivacyExecutionRequest } from "./types
 import { decimalsForToken, normalizeTokenSymbol } from "@/lib/tokens";
 
 const CLOAK_DEVNET_RELAY_URL = "https://api.devnet.cloak.ag";
+const CLOAK_TRANSACTION_CIRCUITS_URL = "https://storage.googleapis.com/cloak-circuits/circuits/0.1.0";
 const CLOAK_CIRCUIT_WASM_PATH = "transaction_js/transaction.wasm";
 const CLOAK_CIRCUIT_WASM_MAGIC = [0x00, 0x61, 0x73, 0x6d];
 
@@ -29,7 +30,7 @@ export async function executeCloakPayout({ plan, connection, wallet }: PrivacyEx
   const cloakSdk = await import("@cloak.dev/sdk-devnet");
   const { CLOAK_PROGRAM_ID, DEVNET_MOCK_USDC_MINT, NATIVE_SOL_MINT, createUtxo, createZeroUtxo, fullWithdraw, generateUtxoKeypair, transact } = cloakSdk;
   const token = resolveCloakToken(plan.parsedOperation.tokenSymbol, plan.parsedOperation.tokenMint, NATIVE_SOL_MINT, DEVNET_MOCK_USDC_MINT);
-  const circuitsUrl = resolveCloakCircuitsUrl(cloakSdk.DEFAULT_TRANSACTION_CIRCUITS_URL);
+  const circuitsUrl = resolveCloakCircuitsUrl();
 
   cloakSdk.setCircuitsPath(circuitsUrl);
   await validateCloakCircuitWasm(circuitsUrl);
@@ -128,8 +129,8 @@ export function resolveCloakToken(symbol: string, tokenMint: string | undefined,
   return { symbol: tokenSymbol, mint: devnetMockUsdcMint, decimals: decimalsForToken(tokenSymbol) };
 }
 
-export function resolveCloakCircuitsUrl(defaultCircuitsUrl: string): string {
-  return stripTrailingSlash(getOptionalPublicEnv("NEXT_PUBLIC_CLOAK_CIRCUITS_URL") ?? defaultCircuitsUrl);
+export function resolveCloakCircuitsUrl(): string {
+  return stripTrailingSlash(getOptionalPublicEnv("NEXT_PUBLIC_CLOAK_CIRCUITS_URL") ?? CLOAK_TRANSACTION_CIRCUITS_URL);
 }
 
 export async function validateCloakCircuitWasm(circuitsBaseUrl: string, fetchFn: typeof fetch = fetch): Promise<void> {
