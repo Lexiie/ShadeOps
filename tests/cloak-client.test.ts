@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
-import { executeCloakPayout, resolveCloakToken, validateCloakCircuitWasm } from "@/lib/privacy/cloakClient";
+import { executeCloakPayout, resolveCloakCircuitsUrl, resolveCloakRelayUrl, resolveCloakToken, validateCloakCircuitWasm } from "@/lib/privacy/cloakClient";
 import type { PrivacyExecutionRequest } from "@/lib/privacy/types";
 
 const validRecipient = "11111111111111111111111111111111";
@@ -109,5 +109,21 @@ describe("executeCloakPayout", () => {
     await expect(validateCloakCircuitWasm("https://circuits.example", fetchXml as typeof fetch)).rejects.toThrow(
       /NEXT_PUBLIC_CLOAK_CIRCUITS_URL/i
     );
+  });
+
+  it("resolves Cloak public env settings through static Next references", () => {
+    const originalCircuitsUrl = process.env.NEXT_PUBLIC_CLOAK_CIRCUITS_URL;
+    const originalRelayUrl = process.env.NEXT_PUBLIC_CLOAK_RELAY_URL;
+
+    process.env.NEXT_PUBLIC_CLOAK_CIRCUITS_URL = "https://circuits.example/custom/";
+    process.env.NEXT_PUBLIC_CLOAK_RELAY_URL = "https://relay.example/";
+
+    try {
+      expect(resolveCloakCircuitsUrl()).toBe("https://circuits.example/custom");
+      expect(resolveCloakRelayUrl()).toBe("https://relay.example");
+    } finally {
+      process.env.NEXT_PUBLIC_CLOAK_CIRCUITS_URL = originalCircuitsUrl;
+      process.env.NEXT_PUBLIC_CLOAK_RELAY_URL = originalRelayUrl;
+    }
   });
 });

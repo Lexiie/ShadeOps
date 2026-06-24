@@ -46,7 +46,7 @@ export async function executeCloakPayout({ plan, connection, wallet }: PrivacyEx
     signMessage: wallet.signMessage,
     depositorPublicKey: wallet.publicKey,
     walletPublicKey: wallet.publicKey,
-    relayUrl: getOptionalPublicEnv("NEXT_PUBLIC_CLOAK_RELAY_URL") ?? CLOAK_DEVNET_RELAY_URL,
+    relayUrl: resolveCloakRelayUrl(),
     enforceViewingKeyRegistration: false
   };
 
@@ -130,7 +130,11 @@ export function resolveCloakToken(symbol: string, tokenMint: string | undefined,
 }
 
 export function resolveCloakCircuitsUrl(): string {
-  return stripTrailingSlash(getOptionalPublicEnv("NEXT_PUBLIC_CLOAK_CIRCUITS_URL") ?? CLOAK_TRANSACTION_CIRCUITS_URL);
+  return stripTrailingSlash(process.env.NEXT_PUBLIC_CLOAK_CIRCUITS_URL?.trim() || CLOAK_TRANSACTION_CIRCUITS_URL);
+}
+
+export function resolveCloakRelayUrl(): string {
+  return stripTrailingSlash(process.env.NEXT_PUBLIC_CLOAK_RELAY_URL?.trim() || CLOAK_DEVNET_RELAY_URL);
 }
 
 export async function validateCloakCircuitWasm(circuitsBaseUrl: string, fetchFn: typeof fetch = fetch): Promise<void> {
@@ -191,9 +195,4 @@ function stripTrailingSlash(value: string): string {
 
 function formatCause(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-function getOptionalPublicEnv(name: string): string | undefined {
-  const value = process.env[name]?.trim();
-  return value || undefined;
 }
