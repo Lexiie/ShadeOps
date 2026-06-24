@@ -27,10 +27,11 @@ export async function executeUmbraPayout({ plan, wallet }: PrivacyExecutionReque
     throw new Error("Umbra execution requires token mint and recipient wallet.");
   }
 
-  const [{ getUmbraClient, getUserRegistrationFunction, getPublicBalanceToReceiverClaimableUtxoCreatorFunction }, { getCdnZkAssetProvider, getCreateReceiverClaimableUtxoFromPublicBalanceProver }] = await Promise.all([
+  const [{ getUmbraClient, getUserRegistrationFunction, getPublicBalanceToReceiverClaimableUtxoCreatorFunction }, { getCdnZkAssetProvider, getCreateReceiverClaimableUtxoFromPublicBalanceProver, getUserRegistrationProver }] = await Promise.all([
     import("@umbra-privacy/sdk"),
     import("@umbra-privacy/web-zk-prover")
   ]);
+  const proverDeps = createValidatedUmbraProverDeps(getCdnZkAssetProvider);
   const signer = createUmbraSigner(wallet);
   const client = await getUmbraClient({
     signer: signer as never,
@@ -39,12 +40,12 @@ export async function executeUmbraPayout({ plan, wallet }: PrivacyExecutionReque
     rpcSubscriptionsUrl: getRequiredPublicEnv("NEXT_PUBLIC_SOLANA_RPC_WS_URL"),
     indexerApiEndpoint: getRequiredPublicEnv("NEXT_PUBLIC_UMBRA_INDEXER_API_ENDPOINT")
   });
-  const register = getUserRegistrationFunction({ client });
+  const register = getUserRegistrationFunction({ client }, { zkProver: getUserRegistrationProver(proverDeps) } as never);
   await register({ confidential: true, anonymous: true });
 
   const createUtxo = getPublicBalanceToReceiverClaimableUtxoCreatorFunction(
     { client },
-    { zkProver: getCreateReceiverClaimableUtxoFromPublicBalanceProver(createValidatedUmbraProverDeps(getCdnZkAssetProvider)) }
+    { zkProver: getCreateReceiverClaimableUtxoFromPublicBalanceProver(proverDeps) }
   );
   const result = await createUtxo({
     amount: decimalToBaseUnits(plan.parsedOperation.amount, getTokenDecimals(plan.parsedOperation.tokenSymbol)) as never,
@@ -103,6 +104,8 @@ export async function claimUmbraReceivedPayouts(wallet: WalletExecutionAdapter, 
 
 async function createUmbraClient(wallet: WalletExecutionAdapter): Promise<unknown> {
   const { getUmbraClient, getUserRegistrationFunction } = await import("@umbra-privacy/sdk");
+  const { getCdnZkAssetProvider, getUserRegistrationProver } = await import("@umbra-privacy/web-zk-prover");
+  const proverDeps = createValidatedUmbraProverDeps(getCdnZkAssetProvider);
   const signer = createUmbraSigner(wallet);
   const client = await getUmbraClient({
     signer: signer as never,
@@ -111,7 +114,7 @@ async function createUmbraClient(wallet: WalletExecutionAdapter): Promise<unknow
     rpcSubscriptionsUrl: getRequiredPublicEnv("NEXT_PUBLIC_SOLANA_RPC_WS_URL"),
     indexerApiEndpoint: getRequiredPublicEnv("NEXT_PUBLIC_UMBRA_INDEXER_API_ENDPOINT")
   });
-  const register = getUserRegistrationFunction({ client });
+  const register = getUserRegistrationFunction({ client }, { zkProver: getUserRegistrationProver(proverDeps) } as never);
   await register({ confidential: true, anonymous: true });
 
   return client;
