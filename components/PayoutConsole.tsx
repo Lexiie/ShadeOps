@@ -682,7 +682,7 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
         <div className="space-y-3">
           <p className="text-sm leading-6 text-muted-foreground">{planResponse.treasuryContext.summary}</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Metric label="Zerion source" value={planResponse.treasuryContext.source.replace("-", " ")} />
+            <Metric label="Context source" value={planResponse.treasuryContext.source.replace("-", " ")} />
             <Metric label="Portfolio value" value={formatUsdMetric(planResponse.treasuryContext.portfolioValueUsd)} mono />
             <Metric label="Recent outflow" value={formatUsdMetric(planResponse.treasuryContext.recentOutflowUsd)} mono />
             <Metric label="Observed positions" value={String(planResponse.treasuryContext.holdings.length)} mono />
@@ -691,7 +691,7 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
           <Metric label="Requested" value={`${planResponse.balance.requestedAmount} ${planResponse.balance.tokenSymbol}`} />
           {planResponse.treasuryContext.topPositions.length > 0 ? (
             <div className="rounded-md border border-border bg-background p-3">
-              <p className="mb-2 text-xs text-muted-foreground">Top Zerion positions</p>
+              <p className="mb-2 text-xs text-muted-foreground">Top observed positions</p>
               <div className="space-y-2">
                 {planResponse.treasuryContext.topPositions.map((position, index) => (
                   <div key={`${position.symbol}-${position.chain ?? "chain"}-${index}`} className="grid grid-cols-[1fr_auto] gap-3 text-sm">

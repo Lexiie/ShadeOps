@@ -11,18 +11,50 @@ type JsonRecord = Record<string, unknown>;
 type ZerionFetch = (input: string | URL, init?: RequestInit) => Promise<Response>;
 
 /**
- * Reads treasury context from Zerion API or CLI and fails closed when neither path works.
+ * Reads treasury context from Zerion API or CLI. If the observer is rate-limited,
+ * return an explicit RPC-only context so exact Solana balance checks can continue.
  */
 export async function getTreasuryContext(treasuryWallet: string): Promise<TreasuryContext> {
   if (process.env.ZERION_API_KEY) {
-    return getZerionApiTreasuryContext(treasuryWallet, process.env.ZERION_API_KEY);
+    try {
+      return await getZerionApiTreasuryContext(treasuryWallet, process.env.ZERION_API_KEY);
+    } catch (error) {
+      if (!isZerionRecoverableError(error)) {
+        throw error;
+      }
+
+      if (process.env.ZERION_CLI_PATH) {
+        return getZerionCliTreasuryContext(treasuryWallet);
+      }
+
+      return buildRpcOnlyTreasuryContext(treasuryWallet, error);
+    }
   }
 
+  return getZerionCliTreasuryContext(treasuryWallet);
+}
+
+async function getZerionCliTreasuryContext(treasuryWallet: string): Promise<TreasuryContext> {
   const command = process.env.ZERION_CLI_PATH ?? "zerion";
   const args = resolveZerionCliArgs(process.env.ZERION_CLI_ARGS, treasuryWallet);
   const { stdout } = await execFileAsync(command, args, { timeout: 15000 });
 
   return parseZerionCliOutput(treasuryWallet, stdout);
+}
+
+export function buildRpcOnlyTreasuryContext(treasuryWallet: string, error?: unknown): TreasuryContext {
+  const reason = error instanceof Error ? error.message : "Zerion treasury observer is unavailable.";
+
+  return treasuryContextSchema.parse({
+    treasuryWallet,
+    source: "solana-rpc",
+    summary: `Zerion treasury context unavailable; using Solana RPC for exact balance checks. ${reason}`,
+    holdings: [],
+    topPositions: [],
+    recentTransactions: [],
+    recentOutflowUsd: 0,
+    observedAt: new Date().toISOString()
+  });
 }
 
 /**
@@ -154,6 +186,14 @@ async function fetchZerionJson(url: URL, apiKey: string, fetcher: ZerionFetch): 
   }
 
   return response.json();
+}
+
+function isZerionRecoverableError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return /Zerion API request failed with (?:401|403|408|429|5\d\d)|fetch failed|network/i.test(error.message);
 }
 
 function normalizeHoldings(rawHoldings: unknown[]): TreasuryContext["holdings"] {

@@ -17,7 +17,7 @@ export const parsedPayoutOperationSchema = z.object({
 
 export const treasuryContextSchema = z.object({
   treasuryWallet: z.string(),
-  source: z.enum(["zerion-cli", "zerion-api"]),
+  source: z.enum(["zerion-cli", "zerion-api", "solana-rpc"]),
   summary: z.string(),
   portfolioValueUsd: z.number().nonnegative().optional(),
   portfolioChangeUsd1d: z.number().optional(),

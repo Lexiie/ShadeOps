@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildZerionWalletUrl, getZerionApiTreasuryContext, parseZerionApiTreasuryContext, parseZerionCliOutput, resolveZerionCliArgs } from "@/lib/treasury/zerionCli";
+import { buildRpcOnlyTreasuryContext, buildZerionWalletUrl, getZerionApiTreasuryContext, parseZerionApiTreasuryContext, parseZerionCliOutput, resolveZerionCliArgs } from "@/lib/treasury/zerionCli";
 
 const TREASURY_WALLET = "TreasuryWallet111111111111111111111111111111";
 
@@ -122,5 +122,15 @@ describe("Zerion treasury observer", () => {
       Authorization: `Basic ${Buffer.from("zk_test_key:").toString("base64")}`,
       Accept: "application/json"
     });
+  });
+
+  it("builds an explicit RPC-only context when Zerion is unavailable", () => {
+    const context = buildRpcOnlyTreasuryContext(TREASURY_WALLET, new Error("Zerion API request failed with 429 for /positions/."));
+
+    expect(context.source).toBe("solana-rpc");
+    expect(context.treasuryWallet).toBe(TREASURY_WALLET);
+    expect(context.summary).toContain("Zerion treasury context unavailable");
+    expect(context.recentOutflowUsd).toBe(0);
+    expect(context.holdings).toEqual([]);
   });
 });

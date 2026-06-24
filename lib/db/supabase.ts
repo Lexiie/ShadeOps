@@ -41,15 +41,21 @@ export function getSupabaseRestClient(): SupabaseRestClient | null {
       url.searchParams.set(key, value);
     }
 
-    const response = await fetch(url, {
-      ...init,
-      headers: {
-        apikey: restServiceRoleKey,
-        Authorization: `Bearer ${restServiceRoleKey}`,
-        "Content-Type": "application/json",
-        ...init.headers
-      }
-    });
+    let response: Response;
+
+    try {
+      response = await fetch(url, {
+        ...init,
+        headers: {
+          apikey: restServiceRoleKey,
+          Authorization: `Bearer ${restServiceRoleKey}`,
+          "Content-Type": "application/json",
+          ...init.headers
+        }
+      });
+    } catch (error) {
+      throw new Error(`Unable to reach Supabase REST API for ${table}. Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. ${error instanceof Error ? error.message : "Request failed."}`);
+    }
 
     if (!response.ok) {
       const message = await response.text().catch(() => "");
