@@ -41,13 +41,19 @@ export async function verifyExecutionReferencesOnChain(references: ExecutionRefe
     }
 
     if (options.expectedSigner && !status.signerAddresses?.includes(options.expectedSigner)) {
-      throw new Error(`Execution signature ${reference.signature} was not signed by the approving admin wallet.`);
+      throw new Error(
+        `Execution signature ${reference.signature} was not signed by the approving admin wallet. Expected signer ${options.expectedSigner}; transaction signers: ${formatSignerList(status.signerAddresses)}.`
+      );
     }
 
     if (options.expectedPlan) {
       validateDecodedTransactionHints(reference, status, options.expectedPlan);
     }
   }
+}
+
+function formatSignerList(signers: string[] | undefined): string {
+  return signers && signers.length > 0 ? signers.join(", ") : "none decoded";
 }
 
 function validateDecodedTransactionHints(reference: ExecutionReference, status: SignatureStatus, plan: ExecutionPlan): void {

@@ -165,6 +165,19 @@ export function PayoutConsole({ initialTreasuryConfig = null }: Readonly<{ initi
     setError(null);
 
     try {
+      if (!workspaceMembership) {
+        throw new Error("Create or load a workspace before approving a payout plan.");
+      }
+
+      if (!publicKey) {
+        throw new Error("Connect the admin wallet before approving a payout plan.");
+      }
+
+      const connectedWallet = publicKey.toBase58();
+      if (connectedWallet !== workspaceMembership.walletAddress) {
+        throw new Error(`Wallet mismatch: signed in as ${formatWallet(workspaceMembership.walletAddress)}, but execution wallet is ${formatWallet(connectedWallet)}. Sign in and execute with the same admin wallet.`);
+      }
+
       const executionReferences = await executePrivacyPayout({
         plan: planResponse.executionPlan,
         connection,
@@ -994,6 +1007,10 @@ function SkeletonPlan(): ReactElement {
       </div>
     </Panel>
   );
+}
+
+function formatWallet(walletAddress: string): string {
+  return walletAddress.length > 12 ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}` : walletAddress;
 }
 
 /**

@@ -94,12 +94,14 @@ describe("route and proof modules", () => {
   });
 
   it("rejects execution signatures not signed by the approving admin", async () => {
+    const otherSigner = "AnotherSigner1111111111111111111111111111111";
+
     await expect(
       verifyExecutionReferencesOnChain([executionReference], {
         expectedSigner: adminSigner,
-        fetchStatus: async () => ({ ...confirmedByAdmin, signerAddresses: ["AnotherSigner1111111111111111111111111111111"] })
+        fetchStatus: async () => ({ ...confirmedByAdmin, signerAddresses: [otherSigner] })
       })
-    ).rejects.toThrow(/approving admin wallet/i);
+    ).rejects.toThrow(otherSigner);
   });
 
   it("accepts execution signatures signed by the approving admin", async () => {
