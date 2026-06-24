@@ -27,7 +27,7 @@ export async function executeUmbraPayout({ plan, wallet }: PrivacyExecutionReque
     throw new Error("Umbra execution requires token mint and recipient wallet.");
   }
 
-  const [{ getUmbraClient, getUserRegistrationFunction, getPublicBalanceToReceiverClaimableUtxoCreatorFunction }, { getCreateReceiverClaimableUtxoFromPublicBalanceProver }] = await Promise.all([
+  const [{ getUmbraClient, getUserRegistrationFunction, getPublicBalanceToReceiverClaimableUtxoCreatorFunction }, { getCdnZkAssetProvider, getCreateReceiverClaimableUtxoFromPublicBalanceProver }] = await Promise.all([
     import("@umbra-privacy/sdk"),
     import("@umbra-privacy/web-zk-prover")
   ]);
@@ -44,7 +44,7 @@ export async function executeUmbraPayout({ plan, wallet }: PrivacyExecutionReque
 
   const createUtxo = getPublicBalanceToReceiverClaimableUtxoCreatorFunction(
     { client },
-    { zkProver: getCreateReceiverClaimableUtxoFromPublicBalanceProver() }
+    { zkProver: getCreateReceiverClaimableUtxoFromPublicBalanceProver(createValidatedUmbraProverDeps(getCdnZkAssetProvider)) }
   );
   const result = await createUtxo({
     amount: decimalToBaseUnits(plan.parsedOperation.amount, getTokenDecimals(plan.parsedOperation.tokenSymbol)) as never,
@@ -75,7 +75,7 @@ export async function scanUmbraClaimablePayouts(wallet: WalletExecutionAdapter, 
  * Claims receiver-claimable Umbra UTXOs into the recipient's encrypted balance.
  */
 export async function claimUmbraReceivedPayouts(wallet: WalletExecutionAdapter, operationId: string, options: { treeIndex?: number; startInsertionIndex?: number; endInsertionIndex?: number } = {}): Promise<UmbraClaimResult> {
-  const [{ getClaimableUtxoScannerFunction, getReceiverClaimableUtxoToEncryptedBalanceClaimerFunction, getUmbraRelayer }, { getClaimReceiverClaimableUtxoIntoEncryptedBalanceProver }] = await Promise.all([
+  const [{ getClaimableUtxoScannerFunction, getReceiverClaimableUtxoToEncryptedBalanceClaimerFunction, getUmbraRelayer }, { getCdnZkAssetProvider, getClaimReceiverClaimableUtxoIntoEncryptedBalanceProver }] = await Promise.all([
     import("@umbra-privacy/sdk"),
     import("@umbra-privacy/web-zk-prover")
   ]);
@@ -91,7 +91,7 @@ export async function claimUmbraReceivedPayouts(wallet: WalletExecutionAdapter, 
   const relayer = getUmbraRelayer({ apiEndpoint: getRequiredPublicEnv("NEXT_PUBLIC_UMBRA_RELAYER_API_ENDPOINT") });
   const claim = getReceiverClaimableUtxoToEncryptedBalanceClaimerFunction(
     { client } as never,
-    { zkProver: getClaimReceiverClaimableUtxoIntoEncryptedBalanceProver(), relayer } as never
+    { zkProver: getClaimReceiverClaimableUtxoIntoEncryptedBalanceProver(createValidatedUmbraProverDeps(getCdnZkAssetProvider)), relayer } as never
   );
   const result = await claim(received as never);
 
@@ -258,4 +258,66 @@ export function getRequiredPublicEnv(name: string): string {
   }
 
   return value;
+}
+
+type UmbraAssetProvider = {
+  getAssetUrls: (type: never, variant?: never) => Promise<{ zkeyUrl: string; wasmUrl: string }>;
+};
+
+type UmbraAssetProviderFactory = () => UmbraAssetProvider;
+
+type UmbraAssetContext = {
+  type: string;
+  variant?: string;
+};
+
+function createValidatedUmbraProverDeps(getCdnZkAssetProvider: UmbraAssetProviderFactory): {
+  assetProvider: ReturnType<UmbraAssetProviderFactory>;
+  load: (context: UmbraAssetContext) => Promise<{ exists: true; data: { zkey: Uint8Array; wasm: Uint8Array } }>;
+} {
+  const assetProvider = getCdnZkAssetProvider();
+
+  return {
+    assetProvider,
+    load: async (context) => {
+      const { zkeyUrl, wasmUrl } = await assetProvider.getAssetUrls(context.type as never, context.variant as never);
+      const [zkey, wasm] = await Promise.all([
+        fetchUmbraZkAsset(zkeyUrl, "zkey"),
+        fetchUmbraZkAsset(wasmUrl, "wasm")
+      ]);
+
+      return { exists: true, data: { zkey, wasm } };
+    }
+  };
+}
+
+async function fetchUmbraZkAsset(url: string, kind: "zkey" | "wasm"): Promise<Uint8Array> {
+  const response = await fetch(url);
+  const contentType = response.headers.get("content-type") ?? "unknown";
+  const bytes = new Uint8Array(await response.arrayBuffer());
+
+  if (!response.ok) {
+    throw new Error(`Failed to download Umbra ${kind} asset from ${url}: ${response.status} ${response.statusText}.`);
+  }
+
+  if (kind === "wasm" && !hasMagicBytes(bytes, [0x00, 0x61, 0x73, 0x6d])) {
+    throw new Error(`Umbra WASM asset from ${url} is not WebAssembly. Received ${contentType} with leading bytes ${formatLeadingBytes(bytes)}.`);
+  }
+
+  if (kind === "zkey" && !hasMagicBytes(bytes, [0x7a, 0x6b, 0x65, 0x79])) {
+    throw new Error(`Umbra zkey asset from ${url} is invalid. Received ${contentType} with leading bytes ${formatLeadingBytes(bytes)}.`);
+  }
+
+  return bytes;
+}
+
+function hasMagicBytes(bytes: Uint8Array, expected: readonly number[]): boolean {
+  return expected.every((value, index) => bytes[index] === value);
+}
+
+function formatLeadingBytes(bytes: Uint8Array): string {
+  const hex = Array.from(bytes.slice(0, 8)).map((byte) => byte.toString(16).padStart(2, "0")).join(" ");
+  const text = new TextDecoder().decode(bytes.slice(0, 24)).replace(/[\r\n]+/g, " ");
+
+  return `${hex}${text ? ` (${text})` : ""}`;
 }
