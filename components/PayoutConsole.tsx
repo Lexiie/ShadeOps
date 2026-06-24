@@ -307,7 +307,7 @@ export function PayoutConsole({ initialTreasuryConfig = null }: Readonly<{ initi
               <>
                 <AgentPlanPanel planResponse={planResponse} />
                 <PlanReview planResponse={planResponse} />
-                <section className="grid gap-5 xl:grid-cols-[1fr_0.85fr]">
+                <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
                   <ExecutionApprovalPanel planResponse={planResponse} isBlocked={isBlocked} isApproving={isApproving} onApprovePlan={handleApprovePlan} />
                   <ProofPackagePanel proofPackage={proofPackage} routeMode={planResponse.routeDecision.mode} onCopyProof={handleCopyProof} />
                 </section>
@@ -521,7 +521,7 @@ function ExecutionApprovalPanel({ planResponse, isBlocked, isApproving, onApprov
           {planResponse.executionPlan.steps.map((step) => (
             <li key={step} className="flex gap-2 rounded-md border border-border bg-background px-3 py-2">
               <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
-              <span>{step}</span>
+              <span className="min-w-0 break-words [overflow-wrap:anywhere]">{step}</span>
             </li>
           ))}
         </ol>
@@ -571,13 +571,13 @@ function AgentPlanPanel({ planResponse }: Readonly<{ planResponse: PlanResponse 
   const canExecute = planResponse.policyResult.status !== "blocked";
 
   return (
-    <section className="fade-in rounded-lg border border-primary/30 bg-primary/10 p-4 text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:p-5 lg:col-span-2">
-      <div className="mb-4 flex items-center gap-2 border-b border-primary/25 pb-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-primary"><ListChecks aria-hidden className="h-4 w-4" /></span>
-        <h2 className="text-sm font-medium uppercase tracking-normal text-primary">Agent proposed plan</h2>
+    <section className="fade-in min-w-0 overflow-hidden rounded-lg border border-primary/30 bg-primary/10 p-4 text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:p-5 lg:col-span-2">
+      <div className="mb-4 flex min-w-0 items-center gap-2 border-b border-primary/25 pb-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-background text-primary"><ListChecks aria-hidden className="h-4 w-4" /></span>
+        <h2 className="min-w-0 truncate text-sm font-medium uppercase tracking-normal text-primary">Agent proposed plan</h2>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[1fr_0.95fr]">
-        <div>
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
+        <div className="min-w-0">
           <p className="text-sm leading-6 text-foreground">
             Prepare a private {operation.amount} {operation.tokenSymbol} payout to {operation.recipientLabel} using {route}. The agent has drafted the plan; policy remains the authority and admin wallet approval is still required.
           </p>
@@ -587,7 +587,7 @@ function AgentPlanPanel({ planResponse }: Readonly<{ planResponse: PlanResponse 
             <StatusPill tone="pass" label="proof after execution" />
           </div>
         </div>
-        <div className="rounded-md border border-primary/25 bg-background px-3 py-3">
+        <div className="min-w-0 rounded-md border border-primary/25 bg-background px-3 py-3">
           <p className="text-xs font-semibold uppercase text-muted-foreground">Before funds move</p>
           <ul className="mt-2 space-y-2 text-sm leading-5 text-muted-foreground">
             {[
@@ -610,10 +610,10 @@ function AgentPlanPanel({ planResponse }: Readonly<{ planResponse: PlanResponse 
  */
 function Panel({ title, icon, children }: Readonly<{ title: string; icon: ReactNode; children: ReactNode }>): ReactElement {
   return (
-    <section className="fade-in rounded-lg border border-border bg-card p-4 text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:p-5">
-      <div className="mb-4 flex items-center gap-2 border-b border-border pb-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-secondary text-primary">{icon}</span>
-        <h2 className="text-sm font-medium uppercase tracking-normal text-muted-foreground">{title}</h2>
+    <section className="fade-in min-w-0 overflow-hidden rounded-lg border border-border bg-card p-4 text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:p-5">
+      <div className="mb-4 flex min-w-0 items-center gap-2 border-b border-border pb-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-secondary text-primary">{icon}</span>
+        <h2 className="min-w-0 truncate text-sm font-medium uppercase tracking-normal text-muted-foreground">{title}</h2>
       </div>
       {children}
     </section>
@@ -631,7 +631,7 @@ function StatusPill({ label, tone, fixed = false }: Readonly<{ label: string; to
     nav: "border-primary-foreground/35 bg-primary-foreground/12 text-primary-foreground"
   }[tone];
 
-  return <span className={cn("inline-flex min-h-8 items-center justify-center rounded-md border px-2.5 text-xs font-semibold", fixed && "h-10 w-36", toneClass)}>{label}</span>;
+  return <span className={cn("inline-flex min-h-8 max-w-full items-center justify-center rounded-md border px-2.5 text-center text-xs font-semibold leading-4", fixed && "h-10 w-36", toneClass)}>{label}</span>;
 }
 
 function formatPolicyStatus(status: PolicyResult["status"]): string {
@@ -651,9 +651,9 @@ function formatPolicyStatus(status: PolicyResult["status"]): string {
  */
 function Metric({ label, value, mono = false }: Readonly<{ label: string; value: string; mono?: boolean }>): ReactElement {
   return (
-    <div className="rounded-md border border-border bg-background px-3 py-2">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className={cn("mt-1 break-all text-sm font-medium text-foreground", mono && "font-mono text-xs tabular-nums")}>{value}</p>
+    <div className="min-w-0 overflow-hidden rounded-md border border-border bg-background px-3 py-2">
+      <p className="truncate text-xs text-muted-foreground">{label}</p>
+      <p className={cn("mt-1 min-w-0 text-sm font-medium text-foreground [overflow-wrap:anywhere]", mono && "font-mono text-xs tabular-nums")}>{value}</p>
     </div>
   );
 }
@@ -665,7 +665,7 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
   const policyTone = planResponse.policyResult.status === "pass" ? "pass" : planResponse.policyResult.status === "blocked" ? "blocked" : "review";
 
   return (
-    <div className="grid gap-5 xl:grid-cols-2">
+    <div className="grid min-w-0 gap-5 xl:grid-cols-2">
       {planResponse.agentAdvisory ? <AgentAdvisoryPanel advisory={planResponse.agentAdvisory} /> : null}
 
       <Panel title="Parsed operation" icon={<CheckCircle2 aria-hidden className="h-4 w-4" />}>
@@ -680,7 +680,7 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
 
       <Panel title="Treasury check" icon={<WalletCards aria-hidden className="h-4 w-4" />}>
         <div className="space-y-3">
-          <p className="text-sm leading-6 text-muted-foreground">{planResponse.treasuryContext.summary}</p>
+          <p className="break-words text-sm leading-6 text-muted-foreground [overflow-wrap:anywhere]">{planResponse.treasuryContext.summary}</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <Metric label="Context source" value={planResponse.treasuryContext.source.replace("-", " ")} />
             <Metric label="Portfolio value" value={formatUsdMetric(planResponse.treasuryContext.portfolioValueUsd)} mono />
@@ -694,9 +694,9 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
               <p className="mb-2 text-xs text-muted-foreground">Top observed positions</p>
               <div className="space-y-2">
                 {planResponse.treasuryContext.topPositions.map((position, index) => (
-                  <div key={`${position.symbol}-${position.chain ?? "chain"}-${index}`} className="grid grid-cols-[1fr_auto] gap-3 text-sm">
-                    <span className="truncate text-foreground">{position.symbol}{position.chain ? ` on ${position.chain}` : ""}</span>
-                    <span className="font-mono tabular-nums text-muted-foreground">{formatUsdMetric(position.valueUsd)}</span>
+                  <div key={`${position.symbol}-${position.chain ?? "chain"}-${index}`} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 text-sm">
+                    <span className="min-w-0 truncate text-foreground">{position.symbol}{position.chain ? ` on ${position.chain}` : ""}</span>
+                    <span className="shrink-0 font-mono tabular-nums text-muted-foreground">{formatUsdMetric(position.valueUsd)}</span>
                   </div>
                 ))}
               </div>
@@ -711,12 +711,12 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
           <PolicyNarrative policyResult={planResponse.policyResult} />
           <div className="space-y-2">
             {planResponse.policyResult.ruleResults.map((rule) => (
-              <div key={rule.ruleId} className="rounded-md border border-border bg-background px-3 py-2 text-sm">
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <span className="font-mono text-xs text-muted-foreground">{rule.ruleId}</span>
+              <div key={rule.ruleId} className="min-w-0 rounded-md border border-border bg-background px-3 py-2 text-sm">
+                <div className="mb-1 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="min-w-0 break-words font-mono text-xs text-muted-foreground [overflow-wrap:anywhere]">{rule.ruleId}</span>
                   <StatusPill tone={rule.status === "pass" ? "pass" : rule.status === "blocked" ? "blocked" : "review"} label={rule.status.replace("_", " ")} />
                 </div>
-                <p className="text-muted-foreground">{rule.message}</p>
+                <p className="break-words text-muted-foreground [overflow-wrap:anywhere]">{rule.message}</p>
               </div>
             ))}
           </div>
@@ -729,8 +729,8 @@ function PlanReview({ planResponse }: Readonly<{ planResponse: PlanResponse }>):
           <RouteRecommendation planResponse={planResponse} />
           <Metric label="Recommended mode" value={planResponse.routeDecision.mode.toUpperCase()} />
           <Metric label="Reason code" value={planResponse.routeDecision.reasonCode} mono />
-          <p className="text-sm leading-6 text-muted-foreground">{planResponse.routeDecision.explanation}</p>
-          <div className="rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-xs leading-5 text-muted-foreground">
+          <p className="break-words text-sm leading-6 text-muted-foreground [overflow-wrap:anywhere]">{planResponse.routeDecision.explanation}</p>
+          <div className="min-w-0 break-words rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere]">
             <span className="font-semibold text-accent">Route support:</span> Cloak devnet is wired for SOL and devnet mock USDC shield-and-withdraw flows. Umbra supports receiver-claimable SPL token payouts.
           </div>
           {planResponse.routeDecision.mode === "umbra" ? <UmbraClaimNotice /> : null}
@@ -758,7 +758,7 @@ function PolicyNarrative({ policyResult }: Readonly<{ policyResult: PolicyResult
       <p className="font-medium text-foreground">Policy needs attention before execution.</p>
       <ul className="mt-2 space-y-1">
         {failedRules.map((rule) => (
-          <li key={rule.ruleId} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden />{rule.message}</li>
+          <li key={rule.ruleId} className="flex min-w-0 gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden /><span className="min-w-0 break-words [overflow-wrap:anywhere]">{rule.message}</span></li>
         ))}
       </ul>
     </div>
@@ -772,12 +772,12 @@ function RouteRecommendation({ planResponse }: Readonly<{ planResponse: PlanResp
   return (
     <div className="rounded-md border border-primary/30 bg-primary/10 px-3 py-3 text-sm leading-6 text-muted-foreground">
       <p className="font-medium text-foreground">Recommended route: {route}</p>
-      <p className="mt-1">Reason: {planResponse.routeDecision.explanation}</p>
-      <p className="mt-1">Fallback: {fallback}</p>
+      <p className="mt-1 break-words [overflow-wrap:anywhere]">Reason: {planResponse.routeDecision.explanation}</p>
+      <p className="mt-1 break-words [overflow-wrap:anywhere]">Fallback: {fallback}</p>
       {planResponse.routeDecision.tradeoffs.length > 0 ? (
         <ul className="mt-2 space-y-1">
           {planResponse.routeDecision.tradeoffs.map((tradeoff) => (
-            <li key={tradeoff} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />{tradeoff}</li>
+            <li key={tradeoff} className="flex min-w-0 gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden /><span className="min-w-0 break-words [overflow-wrap:anywhere]">{tradeoff}</span></li>
           ))}
         </ul>
       ) : null}
@@ -927,21 +927,21 @@ function UmbraClaimNotice(): ReactElement {
 
 function AgentAdvisoryPanel({ advisory }: Readonly<{ advisory: AgentAdvisory }>): ReactElement {
   return (
-    <section className="fade-in rounded-lg border border-primary/30 bg-primary/10 p-4 text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:p-5 xl:col-span-2">
-      <div className="mb-4 flex items-center gap-2 border-b border-primary/25 pb-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-primary"><Lightbulb aria-hidden className="h-4 w-4" /></span>
-        <h2 className="text-sm font-medium uppercase tracking-normal text-primary">Agent review</h2>
+    <section className="fade-in min-w-0 overflow-hidden rounded-lg border border-primary/30 bg-primary/10 p-4 text-card-foreground shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:p-5 xl:col-span-2">
+      <div className="mb-4 flex min-w-0 items-center gap-2 border-b border-primary/25 pb-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-background text-primary"><Lightbulb aria-hidden className="h-4 w-4" /></span>
+        <h2 className="min-w-0 truncate text-sm font-medium uppercase tracking-normal text-primary">Agent review</h2>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
-        <div className="space-y-3">
-          <p className="text-sm leading-6 text-foreground">{advisory.summary}</p>
-          <div className="rounded-md border border-primary/25 bg-background px-3 py-3">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+        <div className="min-w-0 space-y-3">
+          <p className="break-words text-sm leading-6 text-foreground [overflow-wrap:anywhere]">{advisory.summary}</p>
+          <div className="min-w-0 rounded-md border border-primary/25 bg-background px-3 py-3">
             <p className="text-xs font-semibold uppercase text-muted-foreground">Next action</p>
-            <p className="mt-1 text-sm leading-6 text-foreground">{advisory.nextAction}</p>
+            <p className="mt-1 break-words text-sm leading-6 text-foreground [overflow-wrap:anywhere]">{advisory.nextAction}</p>
           </div>
-          <p className="text-xs leading-5 text-muted-foreground">{advisory.authorityBoundary}</p>
+          <p className="break-words text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere]">{advisory.authorityBoundary}</p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-1">
           <AdvisoryList title="Questions" items={advisory.questions} empty="No clarifying questions for this draft." />
           <AdvisoryList title="Suggestions" items={advisory.suggestions} empty="No additional suggestions." />
         </div>
@@ -952,16 +952,16 @@ function AgentAdvisoryPanel({ advisory }: Readonly<{ advisory: AgentAdvisory }>)
 
 function AdvisoryList({ title, items, empty }: Readonly<{ title: string; items: string[]; empty: string }>): ReactElement {
   return (
-    <div className="rounded-md border border-primary/25 bg-background px-3 py-3">
+    <div className="min-w-0 rounded-md border border-primary/25 bg-background px-3 py-3">
       <p className="text-xs font-semibold uppercase text-muted-foreground">{title}</p>
       {items.length > 0 ? (
         <ul className="mt-2 space-y-2 text-sm leading-5 text-muted-foreground">
           {items.map((item) => (
-            <li key={item} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />{item}</li>
+            <li key={item} className="flex min-w-0 gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden /><span className="min-w-0 break-words [overflow-wrap:anywhere]">{item}</span></li>
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-sm leading-5 text-muted-foreground">{empty}</p>
+        <p className="mt-2 break-words text-sm leading-5 text-muted-foreground [overflow-wrap:anywhere]">{empty}</p>
       )}
     </div>
   );

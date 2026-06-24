@@ -46,6 +46,13 @@ describe("route and proof modules", () => {
     expect(selectPrivacyRoute({ ...contributorOperation, tokenSymbol: "SOL", tokenMint: undefined, reason: "Vendor payout" }).mode).toBe("cloak");
   });
 
+  it("selects Cloak for native SOL payouts even when the reason is contributor-style", () => {
+    const route = selectPrivacyRoute({ ...contributorOperation, tokenSymbol: "SOL", tokenMint: undefined, reason: "Bounty payout" });
+
+    expect(route.mode).toBe("cloak");
+    expect(route.reasonCode).toBe("NATIVE_SOL_PRIVATE_PAYOUT");
+  });
+
   it("always requires admin signature in execution plans", () => {
     const plan = createExecutionPlan(contributorOperation, policyResult, selectPrivacyRoute(contributorOperation));
     expect(plan.requiresAdminSignature).toBe(true);

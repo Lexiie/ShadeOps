@@ -5,6 +5,15 @@ import { type PrivacyRouteDecision, privacyRouteDecisionSchema } from "@/lib/sch
  * Selects a deterministic privacy route based on payout category and proof needs.
  */
 export function selectPrivacyRoute(operation: ParsedPayoutOperation): PrivacyRouteDecision {
+  if (operation.tokenSymbol === "SOL") {
+    return privacyRouteDecisionSchema.parse({
+      mode: "cloak",
+      reasonCode: "NATIVE_SOL_PRIVATE_PAYOUT",
+      explanation: "native SOL payouts use Cloak because Umbra execution in ShadeOps is for SPL token claimables",
+      tradeoffs: ["Supports native SOL", "Requires Cloak devnet execution support"]
+    });
+  }
+
   if (/payroll|contractor|vendor|invoice/i.test(operation.reason)) {
     return privacyRouteDecisionSchema.parse({
       mode: "cloak",
