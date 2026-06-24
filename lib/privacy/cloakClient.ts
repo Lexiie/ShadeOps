@@ -134,7 +134,16 @@ export function resolveCloakCircuitsUrl(): string {
 }
 
 export function resolveCloakRelayUrl(): string {
-  return stripTrailingSlash(process.env.NEXT_PUBLIC_CLOAK_RELAY_URL?.trim() || CLOAK_DEVNET_RELAY_URL);
+  const configuredRelayUrl = process.env.NEXT_PUBLIC_CLOAK_RELAY_URL?.trim();
+  if (configuredRelayUrl && stripTrailingSlash(configuredRelayUrl) !== CLOAK_DEVNET_RELAY_URL) {
+    return stripTrailingSlash(configuredRelayUrl);
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api/cloak-relay`;
+  }
+
+  return CLOAK_DEVNET_RELAY_URL;
 }
 
 export async function validateCloakCircuitWasm(circuitsBaseUrl: string, fetchFn: typeof fetch = fetch): Promise<void> {

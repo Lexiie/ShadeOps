@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from "@solana/web3.js";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { executeCloakPayout, resolveCloakCircuitsUrl, resolveCloakRelayUrl, resolveCloakToken, validateCloakCircuitWasm } from "@/lib/privacy/cloakClient";
 import type { PrivacyExecutionRequest } from "@/lib/privacy/types";
 
@@ -124,6 +124,20 @@ describe("executeCloakPayout", () => {
     } finally {
       process.env.NEXT_PUBLIC_CLOAK_CIRCUITS_URL = originalCircuitsUrl;
       process.env.NEXT_PUBLIC_CLOAK_RELAY_URL = originalRelayUrl;
+    }
+  });
+
+  it("uses the same-origin Cloak relay proxy when the browser relay is unset or the known devnet relay", () => {
+    const originalRelayUrl = process.env.NEXT_PUBLIC_CLOAK_RELAY_URL;
+
+    vi.stubGlobal("window", { location: { origin: "https://shadeops.example" } });
+    process.env.NEXT_PUBLIC_CLOAK_RELAY_URL = "https://api.devnet.cloak.ag";
+
+    try {
+      expect(resolveCloakRelayUrl()).toBe("https://shadeops.example/api/cloak-relay");
+    } finally {
+      process.env.NEXT_PUBLIC_CLOAK_RELAY_URL = originalRelayUrl;
+      vi.unstubAllGlobals();
     }
   });
 });
