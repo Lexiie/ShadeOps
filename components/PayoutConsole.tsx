@@ -2,7 +2,7 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { AlertTriangle, Bot, CheckCircle2, ChevronDown, Clipboard, FileCheck2, Lightbulb, ListChecks, LockKeyhole, Search, Route, SendHorizontal, ShieldCheck, WalletCards, Wrench } from "lucide-react";
+import { AlertTriangle, Bot, CheckCircle2, ChevronDown, Clipboard, ExternalLink, FileCheck2, Lightbulb, ListChecks, LockKeyhole, Search, Route, SendHorizontal, ShieldCheck, WalletCards, Wrench } from "lucide-react";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -561,6 +561,7 @@ function ProofPackagePanel({ proofPackage, routeMode, onCopyProof }: Readonly<{ 
           <Metric label="Operation" value={proofPackage.operationId} mono />
           <Metric label="Decision hash" value={proofPackage.decisionHash} mono />
           <Metric label="Approved" value={new Date(proofPackage.adminApprovalTimestamp).toLocaleString()} />
+          <ExecutionReferenceLinks references={proofPackage.executionReferences} />
           <button
             type="button"
             onClick={() => void onCopyProof()}
@@ -576,6 +577,35 @@ function ProofPackagePanel({ proofPackage, routeMode, onCopyProof }: Readonly<{ 
       )}
     </Panel>
   );
+}
+
+function ExecutionReferenceLinks({ references }: Readonly<{ references: ProofPackage["executionReferences"] }>): ReactElement {
+  return (
+    <div className="rounded-md border border-border bg-background px-3 py-3">
+      <p className="text-xs font-semibold uppercase text-muted-foreground">Transactions</p>
+      <div className="mt-2 space-y-2">
+        {references.map((reference) => (
+          <a
+            key={`${reference.label}-${reference.signature}`}
+            href={solanaExplorerTxUrl(reference.signature)}
+            target="_blank"
+            rel="noreferrer"
+            className="group flex min-w-0 items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground hover:border-primary/40 hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <span className="min-w-0">
+              <span className="block font-semibold uppercase text-primary">{reference.protocol} / {reference.label}</span>
+              <span className="mt-1 block truncate font-mono text-muted-foreground">{reference.signature}</span>
+            </span>
+            <ExternalLink aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function solanaExplorerTxUrl(signature: string): string {
+  return `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
 }
 
 function AgentPlanPanel({ planResponse }: Readonly<{ planResponse: PlanResponse }>): ReactElement {
