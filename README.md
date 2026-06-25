@@ -12,6 +12,12 @@ The agent helps with interpretation, clarifying questions, advisory review, and 
 
 ![ShadeOps payout review console](assets/readme/hero.svg)
 
+## Final Submission Assets
+
+- Demo video: [`demo.mp4`](demo.mp4)
+- Verified Cloak devnet shield transaction: [`2kQVvg7JSmqjMV8gcEJgwyY15L3691Ac49L3Fn49KjoMVdZnxHeuGVMAbutuxojvfeUTTkneD5C8LmVteVuDQBdg`](https://explorer.solana.com/tx/2kQVvg7JSmqjMV8gcEJgwyY15L3691Ac49L3Fn49KjoMVdZnxHeuGVMAbutuxojvfeUTTkneD5C8LmVteVuDQBdg?cluster=devnet)
+- Verified Cloak devnet withdraw transaction: [`TE5MG2zThvGc2gsrNduZqvQUrLjYSnAWycVtPunzuh78hF2gCgB8JEfPGHpeVdtuquNn2LAfcszX2foh81Ae52n`](https://explorer.solana.com/tx/TE5MG2zThvGc2gsrNduZqvQUrLjYSnAWycVtPunzuh78hF2gCgB8JEfPGHpeVdtuquNn2LAfcszX2foh81Ae52n?cluster=devnet)
+
 ## One-Liner
 
 Agent-assisted private payout ops for Solana teams, with deterministic policy checks and admin-controlled signing.
@@ -176,7 +182,8 @@ Proof packages are only created after the browser reports real protocol executio
 - references match the approved operation id and selected route;
 - duplicate signatures are rejected;
 - signatures exist on Solana RPC, are confirmed or finalized, and did not fail;
-- signatures were signed by the approving admin wallet;
+- Umbra and direct wallet-signed references are checked against the approving admin wallet signer;
+- Cloak references allow relay-signed final transactions while still binding the proof to the admin-approved plan;
 - visible decoded hints match the approved plan, such as Umbra token mints and Cloak withdrawal recipients.
 
 Privacy protocols may hide some semantic details by design, so ShadeOps records the strongest public verification available without weakening the privacy model.
