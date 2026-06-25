@@ -14,7 +14,8 @@ The agent helps with interpretation, clarifying questions, advisory review, and 
 
 ## Final Submission Assets
 
-- Demo video: [`demo.mp4`](demo.mp4)
+- Playable demo video: [`demo.mp4`](https://cdn.jsdelivr.net/gh/Lexiie/ShadeOps@main/demo.mp4)
+- Repository video file: [`demo.mp4`](demo.mp4)
 - Verified Cloak devnet shield transaction: [`2kQVvg7JSmqjMV8gcEJgwyY15L3691Ac49L3Fn49KjoMVdZnxHeuGVMAbutuxojvfeUTTkneD5C8LmVteVuDQBdg`](https://explorer.solana.com/tx/2kQVvg7JSmqjMV8gcEJgwyY15L3691Ac49L3Fn49KjoMVdZnxHeuGVMAbutuxojvfeUTTkneD5C8LmVteVuDQBdg?cluster=devnet)
 - Verified Cloak devnet withdraw transaction: [`TE5MG2zThvGc2gsrNduZqvQUrLjYSnAWycVtPunzuh78hF2gCgB8JEfPGHpeVdtuquNn2LAfcszX2foh81Ae52n`](https://explorer.solana.com/tx/TE5MG2zThvGc2gsrNduZqvQUrLjYSnAWycVtPunzuh78hF2gCgB8JEfPGHpeVdtuquNn2LAfcszX2foh81Ae52n?cluster=devnet)
 
