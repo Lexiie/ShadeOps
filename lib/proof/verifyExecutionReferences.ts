@@ -40,7 +40,7 @@ export async function verifyExecutionReferencesOnChain(references: ExecutionRefe
       throw new Error(`Execution signature ${reference.signature} is not confirmed or finalized yet.`);
     }
 
-    if (options.expectedSigner && !status.signerAddresses?.includes(options.expectedSigner)) {
+    if (requiresApprovingAdminTransactionSigner(reference) && options.expectedSigner && !status.signerAddresses?.includes(options.expectedSigner)) {
       throw new Error(
         `Execution signature ${reference.signature} was not signed by the approving admin wallet. Expected signer ${options.expectedSigner}; transaction signers: ${formatSignerList(status.signerAddresses)}.`
       );
@@ -50,6 +50,10 @@ export async function verifyExecutionReferencesOnChain(references: ExecutionRefe
       validateDecodedTransactionHints(reference, status, options.expectedPlan);
     }
   }
+}
+
+function requiresApprovingAdminTransactionSigner(reference: ExecutionReference): boolean {
+  return reference.protocol !== "cloak";
 }
 
 function formatSignerList(signers: string[] | undefined): string {

@@ -113,6 +113,19 @@ describe("route and proof modules", () => {
     ).resolves.toBeUndefined();
   });
 
+  it("accepts Cloak relay-signed execution transactions when decoded plan hints match", async () => {
+    const solPlan = createExecutionPlan({ ...contributorOperation, tokenSymbol: "SOL", tokenMint: undefined, reason: "Vendor payout" }, policyResult, selectPrivacyRoute({ ...contributorOperation, tokenSymbol: "SOL", tokenMint: undefined, reason: "Vendor payout" }));
+    const cloakReference: ExecutionReference = { ...executionReference, protocol: "cloak", label: "cloak-full-withdraw", metadata: { operationId: solPlan.operationId, recipient: contributorOperation.recipientWallet ?? "", amountLamports: "50000000000" } };
+
+    await expect(
+      verifyExecutionReferencesOnChain([cloakReference], {
+        expectedSigner: adminSigner,
+        expectedPlan: solPlan,
+        fetchStatus: async () => ({ ...confirmedByAdmin, signerAddresses: ["RelaySigner1111111111111111111111111111111"], accountAddresses: [adminSigner, contributorOperation.recipientWallet ?? ""] })
+      })
+    ).resolves.toBeUndefined();
+  });
+
   it("rejects Umbra signatures whose decoded transaction misses the approved mint", async () => {
     const plan = createExecutionPlan(contributorOperation, policyResult, selectPrivacyRoute(contributorOperation));
 
